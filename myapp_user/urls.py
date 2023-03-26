@@ -7,8 +7,7 @@ urlpatterns = [
     path('', views.CalendarView, name='calendar'),
     path('events', views.get_events, name='events'),
 
-    path('send_line_notification', views.send_line_notification, name='send_line_notification'),
-    path('send_line_message', views.send_line_message, name='send_line_message'),
+    path('save-user-id/', get_line_user_id, name='save_user_id'),
     
     path('user_profile', views.user_profile, name='user_profile'),
     path('user_std/<int:id>', views.user_std, name='user_std'),

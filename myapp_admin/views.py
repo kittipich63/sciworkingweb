@@ -5,7 +5,10 @@ from django.contrib.auth.decorators import login_required #ใส่เพื่
 from .models import *
 from myapp_user.models import *
 from django.contrib import messages
-
+from linebot import LineBotApi
+from linebot.models import TextSendMessage
+import requests
+from django.conf import settings
 
 #ข้อมูลส่วนตัว admin
 def admin_profile(req):
@@ -139,6 +142,48 @@ def delete_room(req, id):
     messages.success(req, "ลบห้องสำเร็จ")
     return redirect('/admin_room')
 
+#LINE Notification
+def send_booking_status_update_message(booking):
+    # Get the user's Line user ID from the booking object
+    line_user_id = booking.line_user_id
+    
+    if not line_user_id:
+        # If the user's Line user ID is not set, do nothing
+        return
+    
+    # Set the message to be sent
+    formatted_date = booking.date.strftime('%d/%m/%y')
+    formatted_start_time = booking.start_time.strftime('%H:%M')
+    formatted_end_time = booking.end_time.strftime('%H:%M')
+    if booking.status == 'อนุมัติ':
+        message = f"การจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} ได้รับการอนุมัติ"
+    else:
+        message = f"การจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} ไม่ได้รับการอนุมัติ เนื่องจาก {booking.admin_reason}"
+    
+    # Set the request headers
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {settings.LINE_ACCESS_TOKEN}',
+    }
+    
+    # Set the request body
+    data = {
+        'to': line_user_id,
+        'messages': [
+            {
+                'type': 'text',
+                'text': message,
+            }
+        ],
+    }
+    
+    # Send the request
+    response = requests.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
+    
+    if response.status_code != 200:
+        # If the request failed, log an error
+        print(f"Failed to send message to Line user ID {line_user_id}")
+        print(response.text)
 
 #อนุมัติการจองห้อง
 @login_required
@@ -148,7 +193,8 @@ def approve_booking(req, id):
     booking = Booking.objects.get(id=id)
     booking.status = 'อนุมัติ'
     booking.save()
-    messages.success(req, "อนุมัติสำเร็จ")
+    send_booking_status_update_message(booking)  # Call the send_booking_status_update_message function
+    messages.success(req, "อนุมัติการจองสำเร็จ")
     return redirect('/admin_dashboard')
 
 #ไม่อนุมัติการจองห้อง
@@ -160,9 +206,8 @@ def disapproval_booking(req, id):
     booking.admin_reason = req.POST['admin_reason']
     booking.status = 'ไม่อนุมัติ'
     booking.save()
-    messages.success(req, "ไม่อนุมัติสำเร็จ")
-    context = {
-        "booking" : booking,
-    }
-    return redirect('/admin_dashboard', context)
+    send_booking_status_update_message(booking)
+    messages.success(req, "ไม่อนุมัติการจองสำเร็จ")
+    return redirect('/admin_dashboard')
+
 

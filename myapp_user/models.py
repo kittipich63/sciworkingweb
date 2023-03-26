@@ -9,10 +9,6 @@ STATUS_CHOICES = (
     ("อนุมัติ", "อนุมัติ"),
 )
 
-class LineUser(models.Model):
-    line_user_id = models.CharField(max_length=50, unique=True)
-    django_user_id = models.IntegerField(null=True, blank=True)
-
 
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
@@ -25,7 +21,7 @@ class Booking(models.Model):
     status = models.CharField(max_length = 20,choices = STATUS_CHOICES,default = 'รออนุมัติ')
     date_add = models.DateField(auto_now=True)
     time_add = models.TimeField(auto_now=True)
-    line_user_id = models.CharField(max_length=50, null=True, blank=True)
+    line_user_id = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = 'booking'

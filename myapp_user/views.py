@@ -4,6 +4,7 @@ from datetime import *
 from myapp_user.forms import *
 from myapp_user.models import *
 from myapp_admin.models import *
+from django.contrib.auth.models import User
 from .models import *
 from .forms import *
 from django.core.paginator import Paginator
@@ -19,6 +20,7 @@ from linebot.models import TextSendMessage ,MessageEvent, TextMessage
 from linebot.exceptions import InvalidSignatureError , LineBotApiError
 from django.views.decorators.csrf import csrf_exempt
 import os
+from django.conf import settings
 
 
 #ปฎิทิน
@@ -71,6 +73,7 @@ def addbooking(req):
         if bookingform.is_valid():
             booking = bookingform.save(commit=False)
             booking.user = req.user
+            booking.line_user_id = req.user.line_user_id
             booking.save()
             messages.success(req, "ทำการจองสำเร็จ")
             return redirect('user_mybooking')   
@@ -136,31 +139,77 @@ def user_mybooking(req):
 
 # ---------------------------- Line ------------------------------------#
 #line liff
-def send_line_notification(request):
-    line_bot_api = LineBotApi('AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU=')
-    message = TextSendMessage(text='ทดสอบการส่งข้อความถึง USER')
-    line_bot_api.push_message('U8e80455dd6e8f378064cf3a1a8000b0a', message)
-    return HttpResponse('ทดสอบการส่งข้อความถึง USER')
 
-LINE_ACCESS_TOKEN = 'AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU='
+line_bot_api = LineBotApi('AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU=')
+handler = WebhookHandler('19b6f53ad25ecbd161e8a8b48d65b73d')
 
-def send_line_message(user_id, message):
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {LINE_ACCESS_TOKEN}"
-    }
-    payload = {
-        "to": user_id,
-        "messages": [
-            {
-                "type": "text",
-                "text": message
-            }
-        ]
-    }
-    response = requests.post('https://api.line.me/v2/bot/message/push', headers=headers, json=payload)
-    if response.status_code != 200:
-        print('Failed to send Line message')
+def get_line_user_id(req):
+    # get the user ID from the request object
+    user_id = req.GET.get('user_id')
+
+    # create a new user object with the user ID and save it to the database
+    user = User(line_user_id=user_id)
+    user.save()
+
+    # return a JSON response with the success message
+    return JsonResponse({'message': 'User ID saved successfully'})
+
+'''@csrf_exempt
+def booking_status_update(request, booking_id):
+    try:
+        booking = Booking.objects.get(id=booking_id)
+    except Booking.DoesNotExist:
+        return JsonResponse({'error': 'Booking not found'})
+
+    # Update the booking status here...
+
+    # Send a message to the Chat Line OA using the LINE Messaging API
+    line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
+    message = TextSendMessage(text=f"Booking {booking.id} status updated to {booking.status}")
+    line_bot_api.push_message(booking.line_user_id, message)
+
+    return JsonResponse({'success': True})
+
+
+@csrf_exempt
+def booking_status_update(req):
+    if req.method == 'POST':
+        signature = req.META['HTTP_X_LINE_SIGNATURE']
+        body = req.body.decode('utf-8')
+
+        try:
+            handler.handle(body, signature)
+        except InvalidSignatureError:
+            return HttpResponse(status=400)
+
+        return HttpResponse(status=200)
+    else:
+        return HttpResponse(status=405)
+
+@handler.add(event=MessageEvent, message=TextMessage)
+def handle_message(event):
+    booking_status = event.message.text
+    line_user_id = event.source.user_id
+    message = TextSendMessage(text=f'Booking status updated to {booking_status}')
+    line_bot_api.push_message(line_user_id, message) '''
+
+
+'''@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    user_id = event.source.user_id
+    booking = Booking.objects.filter(line_user_id=user_id).first()
+    if booking:
+        booking.status = 'อนุมัติ'
+        booking.save()
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='ระบบได้รับการอนุมัติการจองของท่านแล้ว')
+        )
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='ไม่พบการจองของท่านในระบบ')
+        ) '''
 
 #link user
 '''@login_required
