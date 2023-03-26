@@ -1,0 +1,149 @@
+{% extends 'home_admin.html' %}
+{% block main %}
+{% load static %}
+            <!-- ======================= Cards ================== -->
+            <div class="cardBox">
+                <div class="card">
+                    <a >
+                        <div>
+                            <div class="numbers">{{ Bookings_count.count }}</div>
+                            <a class="cardName">รายการรออนุมัติการจองห้อง</a>
+                        </div>
+                    </a>
+
+                    <div class="iconBx">
+                        <ion-icon name="library-outline"></ion-icon>
+                    </div>
+                </div>
+
+    <div class="card" >
+        <div>
+            <div href="{% url 'admin_user' %}" class="numbers">{{ User_count.count }}</div>
+            <span href="{% url 'admin_user' %}" class="cardName" >จำนวนสมาชิกที่เป็นนักศึกษาทั้งหมด</span>
+        </div>
+
+        <div class="iconBx">
+            <ion-icon name="people-outline"></ion-icon>
+        </div>
+    </div>
+</div>
+
+            <!-- ================ Order Details List ================= -->
+            <div class="details">
+                <div class="recentOrders">
+                    <div class="cardHeader">
+                        <h2>รายการรออนุมัติการจองห้อง</h2>
+                    </div>
+                    <table id="admin_dashboard" class="" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>รหัสนักศึกษา</th>
+                                <th>ห้อง</th>
+                                <th>วันที่จอง</th>
+                                <th>เวลาที่จอง</th>
+                                <th>วันที่ทำรายการ</th>
+                                <th>เวลาที่ทำรายการ</th>
+                                <th>เหตุผลการจอง</th>
+                                <th>ตัวเลือก</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for booking in page.object_list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ booking.user.stdID }}</td>
+                                <td>{{ booking.room.room_name }}</td>
+                                <td>{{ booking.date }}</td>
+                                <td>{{ booking.start_time }} - {{ booking.end_time }}</td>
+                                <td>{{ booking.date_add }}</td>
+                                <td>{{ booking.time_add }}</td>
+                                <td>{{ booking.reason }}</td>
+                                <td>
+                                    <a  type="button" class="btn status approved" data-bs-toggle="modal" data-bs-target="#approve-{{ forloop.counter }}">อนุมัติ</a>
+                                    <a type="button" class="btn status unapproved" data-bs-toggle="modal" data-bs-target="#disapproval-{{ forloop.counter }}">ไม่อนุมัติ</a>
+                                </td>
+                            </tr>
+
+                            <!-- ยืนยันการไม่อนุมัติ -->
+                                    <div class="modal fade" id="disapproval-{{ forloop.counter }}" name="disapproval" tabindex="-1" aria-labelledby="disapprovalModal" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                                            <div class="modal-content">
+                                                <form method="post" action="disapproval_booking/{{ booking.id }}" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="disapprovalModal">ยืนยันการไม่อนุมัติการจองของ {{ booking.studentid }} </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <div class="col" for="admin_reason">
+                                                        <input type="text" class="form-control " id="admin_reason" name="admin_reason" placeholder="เหตุผลการไม่อนุมัติ" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                                                <button type="submit" class="btn btn-success ">ยืนยัน</button>
+                                            </div>
+                                            </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                            <!-- ยืนยันการอนุมัติ -->
+                                <div class="modal fade" id="approve-{{ forloop.counter }}" name="approve" tabindex="-1" aria-labelledby="approveModal" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                                        <div class="modal-content">
+                                        <form action="approve_booking/{{ booking.id }}" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="approveModal">ยืนยันการอนุมัติ {{ booking.studentid }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                                            <button type="submit" class="btn btn-success ">ยืนยัน</button>
+                                        </div>
+                                        </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- <script>
+    $(document).ready(function () {
+        $('#admin_dashboard').DataTable({
+            //disable sorting on last column
+            "columnDefs": [
+                { "orderable": false, "targets": 5 }
+            ],
+            language: {
+                //customize pagination prev and next buttons: use arrows instead of words
+                'paginate': {
+                    'previous': '<span class="fa fa-chevron-left"></span>',
+                    'next': '<span class="fa fa-chevron-right"></span>'
+                },
+                //customize number of elements to be displayed
+                "lengthMenu": 'Show <select class="form-control input-sm">' +
+                    '<option value="10">10</option>' +
+                    '<option value="20">20</option>' +
+                    '<option value="30">30</option>' +
+                    '<option value="40">40</option>' +
+                    '<option value="50">50</option>' +
+                    '<option value="-1">All</option>' +
+                    '</select> results'
+            }
+        })
+    });
+                </script> -->
+
+{% endblock %}      

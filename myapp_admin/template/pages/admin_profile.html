@@ -1,0 +1,70 @@
+{% extends 'home_admin.html' %}
+{% block main %}
+{% load static %}
+
+            <!-- ================ Order Details List ================= -->
+            <div class="details">
+                <div class="recentOrders">
+                    <div class="cardHeader">
+                        <h2>ข้อมูลส่วนตัว</h2>
+                    </div><br>
+                    <img class="rounded-pill mx-auto" width="100" src="{{ user.socialaccount_set.all.0.get_avatar_url }}">
+                    <h5></h5> <br>
+                        <div class="modal-body">
+                                <div class="col-md-3 mx-auto" for="name">
+                                    <input  class="form-control text-muted"
+                                        placeholder="{{ user.first_name }}&nbsp{{ user.last_name }}" disabled>
+                                </div> <br>
+                                <div class="col-md-3 mx-auto" for="e-mail">
+                                    <input  class="form-control text-muted"
+                                        placeholder="{{ user.email }}" disabled>
+                                </div>       
+                        </div>
+                </div>
+                <div class="text-center">
+                    <a class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#user">เข้าสู่ระบบของนักศึกษา</a>
+                </div>
+                <div class="text-center">
+                    <a class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#logout">ออกจากระบบ</a>
+                </div>
+            </div>
+
+                <!-- ยืนยันการเข้าระบบของนักศึกษา -->
+                <div class="modal fade" id="user" tabindex="-1" aria-labelledby="userModal" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                        <div class="modal-content">
+                            <form action="">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="userModal">ยืนยันการเข้าระบบของนักศึกษา</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    </button>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                                    <a href="{% url 'calendar' %}" class="btn btn-success ">ยืนยัน</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+    <!-- ยืนยันการออกจากระบบ -->
+    <div class="modal fade" id="logout" tabindex="-1" aria-labelledby="logoutModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <form action="">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="logoutModal">ยืนยันการออกจากระบบ</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                        <a href="/logout/" class="btn btn-success ">ยืนยัน</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}    

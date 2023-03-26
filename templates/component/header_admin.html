@@ -1,0 +1,66 @@
+{% load static %} <!---Admin Page-->
+    <!-- =============== Navigation ================ -->
+<nav>
+    <input type="checkbox" id="check">
+    <label for="check" class="checkbtn">
+        <i class="fas fa-bars"></i>
+    </label>
+        <ul>
+            <li><a href="{% url 'admin_dashboard' %}">หน้าหลัก</a></li>
+            <li><a href="{% url 'admin_user' %}">ผู้ใช้</a></li>
+            <li><a href="{% url 'admin_room' %}">ห้อง</a></li>
+        </ul>
+    <!-- =============== profile ================ -->
+    <div class="action">
+        <div class="profile" onclick="menuToggle();">
+            <a href="{% url 'admin_profile' %}"><img src="{{ user.socialaccount_set.all.0.get_avatar_url }}" ></a>
+        </div>
+    </div>
+</nav>
+    <script>
+        function menuToggle(){
+            const toggleMenu = document.querySelector('.menu2');
+            toggleMenu.classList.toggle('active')
+        }
+    </script> 
+
+
+    <!-- ยืนยันการเข้าระบบของนักศึกษา -->
+    <div class="modal fade" id="user" tabindex="-1" aria-labelledby="userModal" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <form action="">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="userModal">ยืนยันการเข้าระบบของนักศึกษา</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                        <a href="{% url 'calendar' %}" class="btn btn-success ">ยืนยัน</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ยืนยันการออกจากระบบ -->
+    <div class="modal fade" id="logout" tabindex="-1" aria-labelledby="logoutModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+        <div class="modal-content">
+            <form action="">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModal">ยืนยันการออกจากระบบ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger "
+                        data-bs-dismiss="modal">ยกเลิก</button>
+                    <a href="/logout/" class="btn btn-success ">ยืนยัน</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+{% extends 'home_user.html' %}
+{% block main %}
+{% block content %}
+{% load static %}
+
+<!-- ================ Order Details List ================= -->
+<div class="details">
+    <div class="recentOrders">
+        <div class="cardHeader">
+            <h2>เพิ่มการจองห้อง</h2>
+        </div>
+        <form method="POST" action="{% url 'addbooking' %}">
+            {% csrf_token %}
+            {{ bookingform.as_p }}
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success ">ยืนยัน</button>
+            </div>
+        </form>  
+    </div>
+
+</div>
+{% endblock %}
+{% endblock %}

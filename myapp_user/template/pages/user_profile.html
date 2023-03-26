@@ -1,0 +1,129 @@
+{% extends 'home_user.html' %}
+{% block main %}
+{% load static %}
+            
+            <!-- ================ Order Details List ================= -->
+            <div class="details">
+                <div class="recentOrders">
+                    <div class="cardHeader">
+                        <h2>ข้อมูลส่วนตัว</h2> <br>
+                        <a href="https://lin.ee/MAP3FhF"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/th.png" alt="เพิ่มเพื่อน" height="36" border="0"></a>
+                    </div>
+                    <img class="rounded-pill mx-auto" width="100" src="{{ user.socialaccount_set.all.0.get_avatar_url }}">
+                    <h5></h5>
+                        <div class="modal-body">
+                                <div class="col-md-3 mx-auto" for="id_name">
+                                    <label>รหัสนักศึกษา / สถานะ</label>
+                                    <span  class="form-control text-muted" disabled>{{ user.stdID }} {{ user.status }}</span>
+                                </div>
+                                <div class="col-md-3 mx-auto" for="status">
+                                    <label>สิทธิ์การจอง</label>
+                                    <input  class="form-control text-muted" placeholder="{{ user.right }}" disabled>
+                                </div> <br>
+                                <div class="col-md-3 mx-auto" for="name">
+                                    <input  class="form-control text-muted" placeholder="{{user.first_name }}&nbsp{{ user.last_name }}" disabled>
+                                </div> <br>
+                                <div class="col-md-3 mx-auto" for="e-mail">
+                                    <input  class="form-control text-muted" placeholder="{{ user.email }}" disabled>
+                                </div>
+                        </div> <br>
+                    <div class="text-center">
+                        <a class="btn btn-outline-warning text-black" data-bs-toggle="modal" data-bs-target="#editprofile">แก้ไขข้อมูลส่วนตัว</a>
+                    </div><br>
+                </div>            
+                {% if user.status == "ผู้ดูแลระบบ" %}        
+                <div class="text-center">
+                    <a class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#admin">เข้าสู่ระบบของผู้ดูแลระบบ</a>
+                </div>
+                <div class="text-center">
+                    <a class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#logout">ออกจากระบบ</a>
+                </div>
+                {% else %}
+                <div class="text-center">
+                    <a class="btn btn-danger text-white" data-bs-toggle="modal" data-bs-target="#logout">ออกจากระบบ</a>
+                </div>
+                {% endif %}
+            </div>
+
+<!-- แก้ไขข้อมูลส่วนตัว -->
+    <div class="modal fade" id="editprofile" tabindex="-1"
+    aria-labelledby="inputnameModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+        <form method="post" action="/user_std/{{ user.id }}">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addroomModal">แก้ไขข้อมูลส่วนตัว</h5>
+                    <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                    <div class="modal-body">
+                        {% if user.stdID in not None %}
+                            <div class="col" for="stdID">
+                                <input type="text" class="form-control" id="stdID" name="stdID" value="{{ user.stdID }}">
+                            </div> <br>
+                            {% else %}
+                            <div class="col" for="stdID">
+                                <input type="text" class="form-control" id="stdID" name="stdID" value="{{ user.stdID }}">
+                            </div> <br>
+                            {% endif %}
+                            <div class="col" for="room_name">
+                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" disabled>
+                            </div> <br>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger "
+                        data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-success ">ยืนยัน</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ยืนยันการเข้าระบบของผู้ดูแลระบบ -->
+<div class="modal fade" id="admin" tabindex="-1" aria-labelledby="adminModal"
+aria-hidden="true">
+<div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+    <div class="modal-content">
+        <form action="">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adminModal">ยืนยันการเข้าระบบของผู้ดูแลระบบ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger "
+                    data-bs-dismiss="modal">ยกเลิก</button>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-success ">ยืนยัน</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+    <!-- ยืนยันการออกจากระบบ -->
+<div class="modal fade" id="logout" tabindex="-1" aria-labelledby="logoutModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+        <div class="modal-content">
+            <form action="">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModal">ยืนยันการออกจากระบบ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger "
+                        data-bs-dismiss="modal">ยกเลิก</button>
+                    <a href="/logout/" class="btn btn-success ">ยืนยัน</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

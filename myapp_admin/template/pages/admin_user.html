@@ -1,0 +1,168 @@
+{% extends 'home_admin.html' %}
+{% block main %}
+{% load static %}
+
+<!-- ================ Order Details List ================= -->
+<div class="details">
+    <div class="recentOrders">
+        <div class="cardHeader">
+            <h2>จัดการผู้ใช้</h2>
+        </div>
+    
+
+        <table id="admin_user" class="" style="width:100%">
+            <thead>
+                <tr class="fw-bold">
+                    <td>อีเมล</td>
+                    <td>ชื่อ</td>
+                    <td>รหัสนักศึกษา</td>
+                    <td>สถานะ</td>
+                    <td>เป็นสมาชิกตั้งแต่</td>
+                    <td>ใช้งานครั้งล่าสุด</td>
+                    <td>สิทธิ์การจอง</td>
+                    <td>ตัวเลือก</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for AllUser in page.object_list %}
+                <tr>
+                    <td>{{ AllUser.email }}</td>
+                    <td>{{ AllUser.first_name }}&nbsp{{ AllUser.last_name }}</td>
+                    {% if AllUser.stdID == None %}
+                    <td class="small">สมาชิกยังไม่กรอกรหัสนักศึกษา</td>
+                    {% else %}
+                    <td>{{ AllUser.stdID }}</td>
+                    {% endif %}
+                    <td>{{ AllUser.status }}</td>
+                    <td>{{ AllUser.date_joined|date:"j F Y" }}</td>
+                    <td>{{ AllUser.last_login }}</td>
+                    <td>{{ AllUser.right }}</td>
+                    <td>
+                        <i class="button fas fa-edit" data-bs-toggle="modal"
+                        data-bs-target="#manageUser-{{forloop.counter}}" ></i>
+                        <i class="button fas fa-trash" data-bs-toggle="modal"
+                        data-bs-target="#deleteUser-{{forloop.counter}}" ></i>
+                    </td>
+                </tr>
+
+                <!-- แก้ไขข้อมูลส่วนตัวข้อมูลส่วนตัว -->
+                <div class="modal fade" id="manageUser-{{forloop.counter}}" tabindex="-1"
+                    aria-labelledby="manageUserModal" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                        <form method="post" action="admin_manage_user/{{ AllUser.id }}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="manageUserModal">แก้ไขข้อมูลส่วนตัว</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label>ชื่อ-สกุล</label>
+                                        <div class="col" for="stdID">
+                                            <input type="text" maxlength="11" minlength="11" class="form-control "
+                                                value="{{ AllUser.first_name }}&nbsp{{ AllUser.last_name }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>รหัสนักศึกษา</label>
+                                        <div class="col" for="stdID">
+                                            <input type="text" maxlength="11" minlength="11" class="form-control"
+                                                    value="{{ AllUser.stdID }}" id="stdID" name="stdID">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>สิทธิ์การจอง</label>
+                                        <div class="col" for="right">
+                                            <select class="form-control" name="right" id="right">
+                                                <option value="อนุญาต">อนุญาต</option>
+                                                <option value="ไม่อนุญาต">ไม่อนุญาต</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>สถานะ</label>
+                                        <div class="col" for="status">
+                                            <select class="form-control" name="status" id="status">
+                                                <option value="นักศึกษา">นักศึกษา</option>
+                                                <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger "
+                                        data-bs-dismiss="modal">ยกเลิก</button>
+                                    <button type="submit" class="btn btn-success ">ยืนยัน</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ยืนยันการลบ -->
+                <div class="modal fade" id="deleteUser-{{forloop.counter}}" tabindex="-1" aria-labelledby="deleteroomModal"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                        <div class="modal-content">
+                            <form method="post" action="admin_delete_user/{{ AllUser.id }}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteroomModal">ยืนยันการลบ</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <div class="col" >
+                                            <label class="small fw-bold">ถ้าหากคุณลบ {{ AllUser.first_name }}&nbsp{{ AllUser.last_name }} จะไม่สามารถเข้าใช้งานระบบได้อีก </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger "
+                                        data-bs-dismiss="modal">ยกเลิก</button>
+                                    <button type="submit" href="/admin_delete_user/{{ AllUser.id }}" class="btn btn-success ">ยืนยัน</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div> 
+</div>
+
+<!-- <script>
+    $(document).ready(function () {
+            $('#admin_user').DataTable({
+            //disable sorting on last column
+            "columnDefs": [
+                { "orderable": false, "targets": 5 }
+            ],
+            language: {
+                //customize pagination prev and next buttons: use arrows instead of words
+                'paginate': {
+                    'previous': '<span class="fa fa-chevron-left"></span>',
+                    'next': '<span class="fa fa-chevron-right"></span>'
+                },
+                //customize number of elements to be displayed
+                "lengthMenu": 'Show <select class="form-control input-sm">' +
+                    '<option value="10">10</option>' +
+                    '<option value="20">20</option>' +
+                    '<option value="30">30</option>' +
+                    '<option value="40">40</option>' +
+                    '<option value="50">50</option>' +
+                    '<option value="-1">All</option>' +
+                    '</select> results'
+            }
+        })
+    });
+                </script> -->
+
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'home_user.html' %}
+{% block main %}
+{% load static %}
+            <!-- ================ Order Details List ================= -->
+            <div class="details">
+                <div class="recentOrders">
+                    <div class="cardHeader">
+                        <h2>การจองของฉัน</h2>
+                    </div>
+
+                    <!-- <table id="booking"  class="table table-bordered" style="text-align: center;"> -->
+                    <table class="table table-bordered" id="booking" width="100%" cellspacing="0">
+                        <thead class="table-warning">
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>รหัสนักศึกษา</th>
+                                <th>ห้อง</th>
+                                <th>วันที่จอง</th>
+                                <th>เวลาที่จอง</th>
+                                <th>สถานะ</th>
+                                <th>เหตุผลการจอง</th>
+                                <th>เหตุผลที่ไม่อนุมัติ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for booking in page.object_list %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td><p class="mt-2">{{ booking.user.stdID }}</p></td>
+                                <td><p class="text-xl mt-2">{{ booking.room.room_name }}</p></td>
+                                <td><p class="mt-2">{{ booking.date }}</p></td>
+                                <td>{{ booking.start_time }} - {{ booking.end_time }}</td>
+                                <td><span class="status {% if booking.status == 'อนุมัติ' %} approved {% elif booking.status == 'รออนุมัติ' %} wait {% else %} unapproved {% endif %}">{{ booking.status }}</span></td>
+                                <td><p class="mt-2">{{ booking.reason }}</p></td>
+                                <td><p class="mt-2">{% if booking.admin_reason is not None %} {{ booking.admin_reason }} {% else %}  {% endif %}</p></td>
+                                <td>
+                                    {% if booking.status == 'รออนุมัติ' %}
+                                    <!-- <button class="button fa fa-edit" data-bs-toggle="modal" data-bs-target="#editbooking-{{forloop.counter}}"></button> -->
+                                    <a class="button fa fa-edit"  href="{% url 'user_mybooking_edit' booking.pk %}"></a>
+                                    <button class="button fa fa-trash" data-bs-toggle="modal" data-bs-target="#deletebooking-{{forloop.counter}}"></button>
+                                    
+                                    {% endif %}
+                                </td>   
+                            </tr>
+
+
+        <!-- ลบการจอง-->
+        <div class="modal fade" id="deletebooking-{{forloop.counter}}" tabindex="-1" aria-labelledby="editroomModal"
+            aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+            <div class="modal-content">
+            <form method="post" action="user_mybooking_delete/{{ booking.id }}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editroomModal">ลบการจอง</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="col" for="id_room">
+                            <label>ชื่อห้อง</label>
+                            <input type="text" class="form-control" value="{{ booking.room.room_name }}" disabled >
+                        </div> <br>
+                        <div class="col" for="date">
+                            <label>วันที่จอง</label>
+                            <input type="text" class="form-control" value="{{ booking.date }}" disabled >
+                        </div> <br>
+                        <div class="col" for="start_time">
+                            <label>เวลาเริ่มต้น</label>
+                            <input type="text" class="form-control" value="{{ booking.start_time }}" disabled >
+                        </div> <br>
+                        <div class="col" for="end_time">
+                            <label>เวลาสิ้นสุด</label>
+                            <input type="text" class="form-control" value="{{ booking.end_time }}" disabled >
+                        </div> <br>
+                        <div class="col" for="reason">
+                            <label>เหตุผลการจอง</label>
+                            <input type="text" class="form-control" value="{{ booking.reason }}" disabled >
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" href="user_mybooking_delete/{{ booking.id }}" class="btn btn-success ">ยืนยัน</button>
+                </div>
+            </form>
+            </div>
+        </div>
+        </div>
+
+
+                            {% endfor %} 
+                        </tbody>
+                    </table><br>
+            </div>
+            </div>
+
+
+{% endblock %}

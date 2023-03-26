@@ -1,0 +1,450 @@
+/* =========== Google Fonts ============ */
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200;300&display=swap');
+
+* {
+  font-family: 'Kanit', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --white: #fff;
+  --gray: #f5f5f5;
+  --black1: #222;
+  --black2: #999;
+  --amber: #FFBF00;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+/* ====================== calendar========================== */
+.fc .fc-toolbar {
+  display: flex;
+  font-size: small;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fc-time-grid-container,
+.fc-time-grid-container td {
+  background-color: transparent !important;
+}
+
+
+/* ====================== Paginator========================== */
+.page-item.active .page-link {
+  background-color: #ffd75d !important;
+  color: #fff !important;
+  border-color: #FFBF00 !important;
+}
+.page-link {
+  color: #FFBF00 !important;
+}
+.paginate_button .page-item.active  {
+background-color: #ffd75d !important;
+}
+
+/* ====================== detail ========================== */
+.container {
+  position: relative;
+  width: 100%;
+}
+
+.details table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+.details table thead td {
+  font-weight: 600;
+}
+.details .recentOrders table tr {
+  color: var(--black1);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.177);
+}
+.details .recentOrders table tr:last-child {
+  border-bottom: none;
+}
+.details .recentOrders table tbody tr:hover {
+  background: #ffdb6f;
+  color: var(--white);
+}
+.details .recentOrders table tr td {
+  padding: 20px;
+}
+.details .recentOrders table tr td:last-child {
+  text-align: center;
+}
+.details .recentOrders table tr td:nth-child(2) {
+  text-align: center;
+}
+.details .recentOrders table tr td:nth-child(3) {
+  text-align: center;
+}
+
+/* ================== Order Details List ============== */
+.details {
+  position: relative;
+  width: 100%;
+  padding: 20px;
+  display: grid;
+  grid-gap: 30px;
+  margin-top: 0px;
+  z-index: 0;
+}
+
+.details .recentOrders {
+  position: relative;
+  display: grid;
+  min-height: 0px;
+  background: var(--white);
+  padding: 20px;
+  box-shadow: 0 7px 25px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  align-items: start;
+  top: -30px;
+}
+
+.details .cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.cardHeader h2 {
+  font-weight: 600;
+  color: #FFBF00;
+  align-content: center;
+}
+.cardHeader .btn {
+  position: relative;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: var(--white);
+  border-radius: 12px;
+  padding: 6px 20px;
+  background: #fad400;
+  font-size: 14px;
+  font-weight: 500;
+}
+.cardHeader .btn-red {
+  color: #fff;
+  background-color: red;
+}
+
+.cardHeader .btn-green {
+  color: #fff;
+  background-color: green;
+}
+
+.cardHeader .btn-blue {
+  color: #fff;
+  background-color: blue;
+}
+
+.status.approved {
+  padding: 7px 7px;
+  background: #63b308;
+  color: var(--white);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+}
+.status.unapproved {
+  padding: 7px 7px;
+  background: #d02203;
+  color: var(--white);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+}
+
+.status.wait {
+  padding: 7px 7px;
+  background: #464646;
+  color: var(--white);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+}
+
+/* Set a style for the submit button */
+.button {
+  background-color: var(--amber);
+  border-radius: 12px;
+  margin : 5px;
+  color: white;
+  padding: 10px 30px;
+  border: none;
+  cursor: pointer;
+  width: 30%;
+  opacity: 0.9;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  justify-content: space-around;
+}
+
+.button:hover {
+  opacity: 2;
+  color: var(--amber);
+  background-color: var(--white);
+}
+
+/* ====================== Add User ========================== */
+
+/* Style the input container */
+.input-container {
+  display: flex;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+
+/* Style the input fields */
+.input-field {
+  width: 60%;
+  margin: auto;
+  padding: 15px;
+  outline: none;
+  border-radius: 6px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  background-color: #ffd75d;
+}
+
+.input-field:focus {
+  border: 2px solid #FFBF00;
+}
+
+/* ====================== Toggle Switch ========================== */
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 23px;
+  width: 23px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #FFBF00;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #FFBF00;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* ====================== table booking  ========================== */
+.recentOrders table {
+  border: 2px solid #FFBF00;
+  border-radius: 6px;
+  letter-spacing: 1px;
+  font-size: .8rem;
+}
+.recentOrders table td,
+.recentOrders table th {
+    border: 1px solid #FFBF00;
+    padding: 10px;
+}
+.recentOrders table thead tr th {
+  text-align: center;
+  padding: 18px;
+}
+.recentOrders table td {
+    text-align: center;
+}
+
+.recentOrders table tr:nth-child(even) {
+    background-color: #fff;
+}
+
+
+/* ====================== login on navbar  ========================== */
+
+.nav .login-container button {
+  float: right;
+  padding: 6px 10px;
+  margin-top: 8px;
+  margin-right: 16px;
+  background-color: #FFBF00;
+  color: white;
+  font-size: 17px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.nav .login-container button:hover {
+  background-color: #e3ab00;
+  color: black;
+}
+/* ====================== Responsive Design ========================== */
+@media (max-width: 991px) {
+  .navigation {
+    left: -300px;
+  }
+  .navigation.active {
+    width: 300px;
+    left: 0;
+  }
+  .main {
+    width: 100%;
+    left: 0;
+  }
+  .main.active {
+    left: 300px;
+  }
+  .cardBox {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .details {
+    grid-template-columns: 1fr;
+  }
+  .recentOrders {
+    overflow-x: auto;
+  }
+  .status.inProgress {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardBox {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .cardHeader h2 {
+    font-size: 20px;
+  }
+  .user {
+    min-width: 40px;
+  }
+  .navigation {
+    width: 100%;
+    left: -100%;
+    z-index: 1000;
+  }
+  .navigation.active {
+    width: 100%;
+    left: 0;
+  }
+  .toggle {
+    z-index: 10001;
+  }
+  .main.active .toggle {
+    color: #fff;
+    position: fixed;
+    right: 0;
+    left: initial;
+  }
+}
+
+
+.calendar {
+  width: auto;
+  margin: auto;
+  font-size: 13px;
+}
+
+.calendar tr, .calendar td {
+  border: 1px solid black;
+}
+
+.calendar th {
+  padding: 10px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.calendar td {
+  width: 200px;
+  height: 150px;
+  padding: 20px 0px 0px 5px;
+}
+
+.month {
+  font-size: 25px;
+}
+
+.date {
+  font-size: 16px;
+}
+
+ul {
+  height: 100%;
+  padding: 0px 5px 0px 20px;
+}
+
+a {
+  color: #17a2b8;
+}
+
+
+/* ====================== จัดการการ backdrop ========================== */
+.modal {
+  background: rgba(0, 0, 0, 0.5); 
+}
+.modal-backdrop {
+  display: none;
+}
+
+.table-striped tbody tr:last-child td
+{
+    border-radius:5px;
+}
+

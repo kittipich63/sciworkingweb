@@ -1,0 +1,74 @@
+{% load static %}
+    <!-- =============== Navigation ================ -->
+<nav>
+    {% if user.status == "นักศึกษา" or user.status == "ผู้ดูแลระบบ" %}
+        <input type="checkbox" id="check">
+        <label for="check" class="checkbtn">
+            <i class="fas fa-bars"></i>
+        </label>
+        <ul>
+            <li><a href="/">หน้าหลัก</a></li>
+            <li><a href="/user_mybooking">การจองของฉัน</a></li>
+        </ul>
+    <!-- =============== profile ================ -->
+        <div class="action">
+            <div class="profile" onclick="menuToggle();">
+                <a href="{% url 'user_profile' %}"><img src="{{ user.socialaccount_set.all.0.get_avatar_url }}"></a>
+            </div>
+        </div>
+    <script>
+        function menuToggle(){
+            const toggleMenu = document.querySelector('.menu2');
+            toggleMenu.classList.toggle('active')
+        }
+    </script> 
+    {% else %}
+    <nav>
+        <input type="checkbox" id="check">
+        <label for="check" class="checkbtn">
+            <i class="fas fa-bars"></i>
+        </label>
+        <ul>
+            <li><a href="/">หน้าหลัก</a></li>
+            <li><a style="color: #000" href="{% url 'login' %}">เข้าสู่ระบบ</a></li>
+        </ul>
+    </nav>
+    {% endif %}
+</nav>
+    <script>
+        function menuToggle(){
+            const toggleMenu = document.querySelector('.menu2');
+            toggleMenu.classList.toggle('active')
+        }
+    </script> 
+
+
+
+        <!-- profile -->
+            <div class="modal fade" id="profile" tabindex="-1" aria-labelledby="inputnameModal"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                <div class="modal-content">
+                <form action="" >
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteuserModal">โปรไฟล์</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="col" for="email_user">
+                            <input type="email" class="form-control text-muted " id="email_admin" name="email_admin" value="{{user.email}}">
+                        </div> <br>
+                        <div class="col" for="id_name">
+                            <input type="text" class="form-control " id="id_name" name="id_name" placeholder="รหัสนักศึกษา">
+                        </div> <br>
+                        <div class="col" for="name">
+                            <input type="text" class="form-control  text-muted" id="name" name="name" value="{{user.first_name}}&nbsp{{user.last_name}}">
+                        </div>
+                    </div>
+                </div>
+                </form>
+                </div>
+            </div>
+            </div>

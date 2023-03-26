@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Password
+      MYSQL_DATABASE: sciworkingweb_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Password
+      MYSQL_HOST: ''
+    ports:
+      - "3307:3306"
+    volumes:
+      - /tmp/app/mysqld:/var/run/mysqld
+      - ./db:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  web:
+    restart: always
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /tmp/app/mysqld:/run/mysqld
+    depends_on:
+      - db
+
+volumes:
+  db_data:

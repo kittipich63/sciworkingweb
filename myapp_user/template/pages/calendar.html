@@ -1,0 +1,132 @@
+{% extends 'home_user.html' %}
+{% block main %}
+{% block content %}
+{% load static %}
+
+<!-- ================ Order Details List ================= -->
+<div class="details">
+        <div class="cardHeader">
+            <h2>ตารางการจองห้อง</h2>
+            <div>
+                {% for All_room in All_room %}
+                {% if All_room.room_name == '1' %}
+                    <button class="btn btn-red float-right" data-bs-toggle="modal" data-bs-target="#room{{ All_room.id }}">ห้อง {{ All_room.room_name }}</button>
+                {% elif All_room.room_name == '2' %}
+                    <button class="btn btn-green float-right" data-bs-toggle="modal" data-bs-target="#room{{ All_room.id }}">ห้อง {{ All_room.room_name }}</button>
+                {% else %}
+                    <button class="btn btn-blue float-right" data-bs-toggle="modal" data-bs-target="#room{{ All_room.id }}">ห้อง {{ All_room.room_name }}</button>
+                {% endif %}
+                <!-- รายละเอียดห้อง -->
+                <div class="modal fade" id="room{{ All_room.id }}" tabindex="-1"
+                aria-labelledby="room{{ All_room.id }}Modal" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="room{{ All_room.id }}Modal">ห้องที่ : {{ All_room.room_name }}</h5>
+                            <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <div class="col">
+                                    <label class="small fw-bold">ชื่อห้อง : {{ All_room.room_name }} </label><br>
+                                    <label class="small fw-bold">สถานะ : {{ All_room.status }} </label><br>
+                                    <label class="small fw-bold">อุปกรณ์ : {{ All_room.description }} </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% if user.is_authenticated  %}
+        <div class="clearfix">
+            {% if user.stdID is not None %}
+            <a class="btn btn-warning " href="{% url 'addbooking' %}"> + เพิ่มการจอง </a>
+            {% endif  %}
+            {% if user.stdID is None  %}
+            <a class="btn btn-danger text-white " data-bs-toggle="modal" data-bs-target="#editprofile"> + เพิ่มรหัสนักศึกษา </a>
+            <button class="btn btn-info fa-solid fa-circle-info " data-bs-toggle="modal" data-bs-target="#tooltips"></button>
+            {% endif  %}
+        </div>
+        {% endif %}
+        <div id='calendar'></div>
+
+    <!-- แก้ไขข้อมูลส่วนตัว -->
+    <div class="modal fade" id="editprofile" tabindex="-1"
+        aria-labelledby="inputnameModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+        <form method="post" action="/user_std/{{ user.id }}">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addroomModal">แก้ไขข้อมูลส่วนตัว</h5>
+                    <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        <div class="col" for="stdID">
+                            <input type="text" class="form-control" id="stdID" name="stdID" placeholder="รหัสนักศึกษา" required>
+                        </div> <br>
+                        <div class="col" for="room_name">
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                        </div> <br>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger "
+                        data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-success ">ยืนยัน</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
+
+    <!-- คำแนะนำการใช้งาน -->
+    <div class="modal fade" id="tooltips" tabindex="-1"
+    aria-labelledby="tooltipsModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tooltipsModal">คำแนะนำการใช้งาน</h5>
+                    <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <li>1. กรุณาเพิ่มรหัสนักศึกษา</li>
+                        <li>2. จองได้ไม่เกิน 2 ชม.</li>
+                        <li>3. จองล่วงหน้าได้ไม่เกิน 3 ครั้ง/สัปดาห์</li>
+                    </p>
+                </div>
+            </div>
+    </div>
+    </div>
+
+</div>
+
+<!-- {% if messages %}
+{% for message in messages %}
+    <script>
+        $(document).ready(function () {
+            Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: '{{ message }}',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        });
+    </script>
+{% endfor %}
+{% endif %} -->
+
+{% endblock %}
+{% endblock %}
+

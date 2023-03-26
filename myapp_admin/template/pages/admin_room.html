@@ -1,0 +1,164 @@
+{% extends 'home_admin.html' %} {% block main %} {% load static %}
+<!-- ================ Order Details List ================= -->
+<div class="details ">
+    <div class="recentOrders">
+        <div class="cardHeader">
+            <h2>จัดการห้อง</h2>
+                <button class="btn" data-bs-toggle="modal" data-bs-target="#addroom">เพิ่มห้อง</button>
+        </div>
+
+        <table id="admin_room" class="" style="width:100%">
+            <thead>
+                <tr>
+                    <td class="col-md-1">ลำดับ</td>
+                    <td class="col-md-1" >ห้อง</td>
+                    <td class="col-md-1" scope="col">สถานะห้อง</td>
+                    <td class="col-md-4" scope="col">อุปกรณ์</td>
+                    <td class="col-md-2">จัดการห้อง</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for All_room in page.object_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ All_room.room_name }}</td>
+                    <td>{{ All_room.status }}</td>
+                    <td>{{ All_room.description }}</td>
+                    <td>
+                        <i class="button fas fa-edit" data-bs-toggle="modal"
+                        data-bs-target="#edit-{{forloop.counter}}" ></i>
+                        <i class="button fas fa-trash" data-bs-toggle="modal"
+                        data-bs-target="#delete-{{forloop.counter}}" ></i>
+                    </td>
+                </tr>
+
+            <!------ เพิ่มห้อง ------->
+            <div class="modal fade" id="addroom" tabindex="-1" aria-labelledby="addroommModal" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                    <div class="modal-content">
+                        <form class="form-horizontal" method="post" action="/admin_room">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editroomModal">เพิ่มห้องและอุปกรณ์</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">    
+                                <div class="mb-3">
+                                    <label>ชื่อห้อง</label>
+                                    <div class="col" for="room_name">
+                                        <input type="text" class="form-control "
+                                            id="room_name" name="room_name">
+                                    </div> 
+                                </div>
+                                <div class="mb-3">
+                                    <label>สถานะห้อง</label>
+                                        <div class="col" for="status">
+                                            <select class="form-control" name="status" id="status">
+                                                <option value="เปิด">เปิด</option>
+                                                <option value="ปิด">ปิด</option>
+                                            </select>
+                                        </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label>อุปกรณ์</label>
+                                        <div class="col" for="description">
+                                            <input type="text" class="form-control "
+                                                id="description" name="description"> 
+                                        </div>
+                                </div>
+                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                            <button type="submit" class="btn btn-success ">ยืนยัน</button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!------ แก้ไขห้อง ------>
+            <div class="modal fade" id="edit-{{forloop.counter}}" tabindex="-1"
+                aria-labelledby="editroomModal" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                    <div class="modal-content">
+                        <form action="edit_room/{{All_room.id}}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title"
+                                id="deleteuserModal">แก้ไขห้อง</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label>ห้อง</label>
+                                <div class="col" for="room_name">
+                                    <input type="text" class="form-control" id="room_name" name="room_name" 
+                                        value="{{ All_room.room_name }}">
+                                        </div> 
+                                </div>
+                            <div class="mb-3">
+                                <label>สถานะห้อง</label>
+                                <div class="col" for="status">
+                                    <select class="form-control" name="status" id="status">
+                                        <option value="OPEN">เปิด</option>
+                                        <option value="NOTOPEN">ปิด</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label>อุปกรณ์ภายในห้อง</label>
+                                    <div class="col" for="description">
+                                        <input type="text" class="form-control" id="description" name="description"
+                                            value="{{ All_room.description }}"> 
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger"
+                                data-bs-dismiss="modal">ยกเลิก</button>
+                            <button type="submit" class="btn btn-success">ยืนยัน</button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!------ ยืนยันการลบ ------->
+            <div class="modal fade" id="delete-{{forloop.counter}}" tabindex="-1" aria-labelledby="deleteroomModal"
+                aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
+                <div class="modal-content">
+                    <form method="post" action="delete_room/{{ All_room.id }}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteroomModal">ยืนยันการลบ</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <div class="col" >
+                                <label class="small fw-bold">ห้อง : {{ All_room.room_name }} </label><br>
+                                <label class="small fw-bold">สถานะ : {{ All_room.status }} </label><br>
+                                <label class="small fw-bold">อุปกรณ์ : {{ All_room.description }} </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger "data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" href="/delete_room/{{ All_room.id }}" class="btn btn-success ">ยืนยัน</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
