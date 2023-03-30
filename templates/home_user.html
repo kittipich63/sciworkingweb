@@ -171,25 +171,10 @@
         });
     </script>
 
+<!-- LIFF SDK -->
 <script src="https://static.line-scdn.net/liff/edge/versions/2.13.0/sdk.js"></script>
-<script>
-    liff.init({
-        liffId: '1657441828-D9LqXa0V'
-    })
-    async function getUserProfile() {
-        const profile = await liff.getProfile()
-        document.getElementById("userId").append(profile.userId)
-        }
+<!-- Your LIFF app's JavaScript -->
+<script src="{% static 'liff.js' %}"></script>
 
-
-    async function main() {
-        await liff.init({ liffId: "1657441828-D9LqXa0V" })
-        getUserProfile()
-    }
-    main()
-</script>
-
-
-    
 </body>
 </html>    

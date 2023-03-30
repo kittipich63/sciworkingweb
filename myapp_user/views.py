@@ -1,6 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.shortcuts import render, redirect , get_object_or_404
-from datetime import *
 from myapp_user.forms import *
 from myapp_user.models import *
 from myapp_admin.models import *
@@ -13,14 +12,14 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils.translation import gettext as _
-import datetime
-from django.http import HttpResponse
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from django.db.models import Q
+from django.conf import settings
+import requests
+from linebot.exceptions import LineBotApiError
 from linebot import LineBotApi, WebhookHandler ,WebhookParser
 from linebot.models import TextSendMessage ,MessageEvent, TextMessage
-from linebot.exceptions import InvalidSignatureError , LineBotApiError
-from django.views.decorators.csrf import csrf_exempt
-import os
-from django.conf import settings
 
 
 #ปฎิทิน
@@ -67,7 +66,7 @@ def addbooking(req):
         return redirect('/')
     
     
-
+    
     if req.method == 'POST':
         bookingform = BookingModelForm(req.POST, initial={'user': req.user})
         if bookingform.is_valid():
@@ -75,6 +74,11 @@ def addbooking(req):
             booking.user = req.user
             booking.line_user_id = req.user.line_user_id
             booking.save()
+            formatted_date = booking.date.strftime('%d/%m/%y')
+            formatted_start_time = booking.start_time.strftime('%H:%M')
+            formatted_end_time = booking.end_time.strftime('%H:%M')
+            message = f"{booking.user.stdID} ได้ทำการจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} สำเร็จ"
+            send_line_message(booking.line_user_id, message)
             messages.success(req, "ทำการจองสำเร็จ")
             return redirect('user_mybooking')   
     else:
@@ -137,176 +141,117 @@ def user_mybooking(req):
     }
     return render(req, 'pages/user_mybooking.html', context)
 
-# ---------------------------- Line ------------------------------------#
-#line liff
+# ========== LINE ============
+# Function to send a Line message
+def send_line_message(user_id, message):
+    url = 'https://api.line.me/v2/bot/message/push'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {settings.LINE_ACCESS_TOKEN}'
+    }
+    data = {
+        'to': user_id,
+        'messages': [
+            {
+                'type': 'text',
+                'text': message
+            }
+        ]
+    }
+    response = requests.post(url, headers=headers, json=data)
+    
+#เตือนการจองเมื่อใกล้ถึงและสิ้นสุดการจอง
+#ยังไม่สำเร็จ
 
+def check_booking_status():
+    now = timezone.now()
+    # Find all bookings that have been approved and are coming up within the next 10 minutes
+    upcoming_bookings = Booking.objects.filter(status="อนุมัติ", date__gte=now.date(), start_time__gte=now.time(), start_time__lte=(now + timedelta(minutes=2)).time())
+    for booking in upcoming_bookings:
+        # Send a notification message to the user when the reserved time is approaching
+        message = f"Reminder: Your booking for {booking.room.room_name} is starting in 10 minutes."
+        send_line_message(booking.line_user_id, message)
+
+    # Find all bookings that have been approved and are ending within the next 10 minutes
+    ending_bookings = Booking.objects.filter(status="อนุมัติ", date__gte=now.date(), end_time__gte=(now - timedelta(minutes=2)).time(), end_time__lte=now.time())
+    for booking in ending_bookings:
+        # Send a notification message to the user when the booking is about to end
+        message = f"Reminder: Your booking for {booking.room.room_name} is ending in 10 minutes."
+        send_line_message(booking.line_user_id, message)
+
+# Function to check if a booking is approaching its reserved time or its end time by 10 minutes
+'''def check_booking_time():
+    bookings = Booking.objects.filter(status="อนุมัติ")
+    for booking in bookings:
+        time_left = booking.start_time - datetime.datetime.now(datetime.timezone.utc)
+        time_left_min = int(time_left.total_seconds() / 60)
+        if time_left_min == 10:
+            message = f"คุณ {booking.user.stdID} มีการจองห้อง {booking.room.room_name} จะเริ่มในอีก 10 นาที"
+            send_line_message(booking.line_user_id, message)
+        elif time_left_min == 0:
+            message = f"คุณ {booking.user.stdID} มีการจองห้อง {booking.room.room_name} เริ่มในขณะนี้"
+            send_line_message(booking.line_user_id, message)'''
+
+
+# ---------------------------- Line ------------------------------------#
+#line liff - get userid to save bind account
 line_bot_api = LineBotApi('AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('19b6f53ad25ecbd161e8a8b48d65b73d')
 
-def get_line_user_id(req):
-    # get the user ID from the request object
-    user_id = req.GET.get('user_id')
 
-    # create a new user object with the user ID and save it to the database
-    user = User(line_user_id=user_id)
+def line_callback(request):
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+
+    # Send a POST request to LINE's OAuth API to exchange the authorization code for an access token
+    url = 'https://api.line.me/oauth2/v2.1/token'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': 'https://yourapp.com/line/callback',
+        'client_id': 'your_client_id',
+        'client_secret': 'your_client_secret'
+    }
+    response = requests.post(url, headers=headers, data=data)
+    access_token = response.json()['access_token']
+
+    # Send a GET request to LINE's Messaging API to get the user profile
+    url = 'https://api.line.me/v2/profile'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    response = requests.get(url, headers=headers)
+    user_id = response.json()['userId']
+
+    # Save the user ID to the user's account in your Django app
+    user = request.user
+    user.line_user_id = user_id
     user.save()
 
-    # return a JSON response with the success message
-    return JsonResponse({'message': 'User ID saved successfully'})
+    return redirect('/')
 
-'''@csrf_exempt
-def booking_status_update(request, booking_id):
+
+#ผูก Line เข้ากับบัญชี
+def bind_user_account(request):
+    user_id = None
     try:
-        booking = Booking.objects.get(id=booking_id)
-    except Booking.DoesNotExist:
-        return JsonResponse({'error': 'Booking not found'})
-
-    # Update the booking status here...
-
-    # Send a message to the Chat Line OA using the LINE Messaging API
-    line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
-    message = TextSendMessage(text=f"Booking {booking.id} status updated to {booking.status}")
-    line_bot_api.push_message(booking.line_user_id, message)
-
-    return JsonResponse({'success': True})
-
-
-@csrf_exempt
-def booking_status_update(req):
-    if req.method == 'POST':
-        signature = req.META['HTTP_X_LINE_SIGNATURE']
-        body = req.body.decode('utf-8')
-
-        try:
-            handler.handle(body, signature)
-        except InvalidSignatureError:
-            return HttpResponse(status=400)
-
-        return HttpResponse(status=200)
-    else:
-        return HttpResponse(status=405)
-
-@handler.add(event=MessageEvent, message=TextMessage)
-def handle_message(event):
-    booking_status = event.message.text
-    line_user_id = event.source.user_id
-    message = TextSendMessage(text=f'Booking status updated to {booking_status}')
-    line_bot_api.push_message(line_user_id, message) '''
-
-
-'''@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    user_id = event.source.user_id
-    booking = Booking.objects.filter(line_user_id=user_id).first()
-    if booking:
-        booking.status = 'อนุมัติ'
-        booking.save()
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='ระบบได้รับการอนุมัติการจองของท่านแล้ว')
-        )
-    else:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='ไม่พบการจองของท่านในระบบ')
-        ) '''
-
-#link user
-'''@login_required
-def link_line_user(req):
-    line_user_id = req.GET.get('line_user_id')
-    if line_user_id:
-        line_user, created = LineUser.objects.get_or_create(line_user_id=line_user_id, user=req.user)
-        return redirect('home')'''
-
-
-
-###################
-
-'''# Set up the LineBotApi with your Channel Access Token
-line_bot_api = LineBotApi(os.environ.get('AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU='))
-
-# Set up the WebhookHandler with your Channel Secret
-handler = WebhookHandler(os.environ.get('19b6f53ad25ecbd161e8a8b48d65b73d'))
-
-# View to handle LIFF request from user
-def liff_view(req):
-    context = {}
-    if req.method == 'GET':
-        # Render the LIFF template with the user's Line ID as a parameter
-        context['line_id'] = req.GET.get('line_id')
-        return render(req, 'liff_template.html', context)
-
-@csrf_exempt
-def callback(req):
-    # Verify the signature of the incoming request
-    signature = req.headers['X-Line-Signature']
-    body = req.body.decode('utf-8')
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        return HttpResponse(status=400)
-
-    return HttpResponse(status=200)
-
-# Implement a webhook to receive updates from your booking system
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    line_id = event.source.user_id
-    booking_status = get_booking_status(line_id) # Implement your own function to get the user's booking status
-    message = TextSendMessage(text=f"Your booking status is now {booking_status}")
-    try:
-        line_bot_api.push_message(line_id, message)
+        # Get the user ID from the LINE access token
+        access_token = request.GET.get('access_token')
+        user_profile = line_bot_api.get_profile(access_token)
+        user_id = user_profile.user_id
     except LineBotApiError as e:
-        # Handle the LineBotApiError if necessary
-        pass '''
-
-
-
-#Define a view that will handle the incoming request from LINE LIFF:
-'''import requests
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-
-@api_view(['POST'])
-def liff_login(request):
-    user_id = request.data.get('user_id')
-    # Make a request to LINE API to get the user profile
-    profile_response = requests.get(f'https://api.line.me/v2/bot/profile/{user_id}', headers={
-        'Authorization': f'Bearer {LINE_ACCESS_TOKEN}'
-    })
-    if profile_response.status_code == 200:
-        # If the request is successful, get the user profile data
-        profile_data = profile_response.json()
-        # Get or create the user based on the user ID
-        user, created = User.objects.get_or_create(username=user_id)
-        # Update the user's profile data with the LINE data
-        user.first_name = profile_data.get('displayName')
-        user.save()
-        return Response({'success': True})
-    else:
-        return Response({'success': False}) '''
-
-
-'''
-from linebot import LineBotApi
-from linebot.exceptions import LineBotApiError
-
-def get_line_profile(access_token):
-    line_bot_api = LineBotApi(access_token)
-    try:
-        profile = line_bot_api.get_profile()
-        user_id = profile.user_id
-        display_name = profile.display_name
-        # Bind the user ID and profile information to the user in Django
-        # You can use the user_id to find or create a user object in your database
-        # and update the profile information as needed
-        # For example:
-        user = User.objects.get(line_user_id=user_id)
-        user.display_name = display_name
-        user.save()
-    except LineBotApiError as e:
-        # Handle any errors that occur while making API requests
+        # Handle the LineBotApiError
         print(e)
 
-'''
+    # Bind the user ID to the user account
+    if user_id:
+        user = request.user
+        user.line_user_id = user_id
+        user.save()
+        messages.success(request, "ลิงก์ LINE สำเร็จ")
+    else:
+        messages.error(request, "ไม่สามารถลิงก์ LINE ได้")
+    
+    return redirect('/')
+
+
+

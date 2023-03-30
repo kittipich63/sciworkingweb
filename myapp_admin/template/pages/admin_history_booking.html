@@ -1,0 +1,38 @@
+{% extends 'home_admin.html' %}
+{% block main %}
+{% load static %}
+
+<!-- ================ Order Details List ================= -->
+<div class="details">
+    <div class="recentOrders">
+        <div class="cardHeader">
+            <h2>ประวัติการจองห้อง</h2>
+        </div>
+
+        <table id="admin_user" class="" style="width:100%">
+            <thead>
+                <tr class="fw-bold">
+                    <th>ลำดับ</th>
+                    <th>รหัสนักศึกษา</th>
+                    <th>ห้อง</th>
+                    <th>วันที่</th>
+                    <th>เวลาที่จอง</th>
+                    <th>เหตุผลการจอง</th>
+                    <th>สถานะ</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for booking in page.object_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ booking.user.stdID }}</td>
+                    <td>{{ booking.room.room_name }}</td>
+                    <td>{{ booking.date }}</td>
+                    <td>{{ booking.start_time }} - {{ booking.end_time }}</td>
+                    <td>{{ booking.reason }}</td>
+                    <td>{{ booking.status }}</td>
+                </tr>
+                {% endfor %}
+
+{% endblock %}

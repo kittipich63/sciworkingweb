@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.CalendarView, name='calendar'),
     path('events', views.get_events, name='events'),
 
-    path('save-user-id/', get_line_user_id, name='save_user_id'),
+    path('bind_user_account', views.bind_user_account, name='bind_user_account'),
     
     path('user_profile', views.user_profile, name='user_profile'),
     path('user_std/<int:id>', views.user_std, name='user_std'),

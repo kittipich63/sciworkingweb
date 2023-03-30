@@ -32,7 +32,18 @@ class BookingModelForm(forms.ModelForm):
             'reason': TextInput(attrs={'class': 'form-control','placeholder': 'เหตุผลการจอง'})
         }
         
+    def get_current_week(self):
+        today = datetime.now().date()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+        return start_of_week, end_of_week
 
+    def get_current_month(self):
+        today = datetime.now().date()
+        start_of_month = today.replace(day=1)
+        end_of_month = start_of_month.replace(month=start_of_month.month+1, day=1) - timedelta(days=1)
+        return start_of_month, end_of_month
+    
     def clean(self):
             cleaned_data = super().clean()
             start_time = cleaned_data.get("start_time")

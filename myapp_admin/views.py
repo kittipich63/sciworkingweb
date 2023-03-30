@@ -142,49 +142,6 @@ def delete_room(req, id):
     messages.success(req, "ลบห้องสำเร็จ")
     return redirect('/admin_room')
 
-#LINE Notification
-def send_booking_status_update_message(booking):
-    # Get the user's Line user ID from the booking object
-    line_user_id = booking.line_user_id
-    
-    if not line_user_id:
-        # If the user's Line user ID is not set, do nothing
-        return
-    
-    # Set the message to be sent
-    formatted_date = booking.date.strftime('%d/%m/%y')
-    formatted_start_time = booking.start_time.strftime('%H:%M')
-    formatted_end_time = booking.end_time.strftime('%H:%M')
-    if booking.status == 'อนุมัติ':
-        message = f"การจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} ได้รับการอนุมัติ"
-    else:
-        message = f"การจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} ไม่ได้รับการอนุมัติ เนื่องจาก {booking.admin_reason}"
-    
-    # Set the request headers
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {settings.LINE_ACCESS_TOKEN}',
-    }
-    
-    # Set the request body
-    data = {
-        'to': line_user_id,
-        'messages': [
-            {
-                'type': 'text',
-                'text': message,
-            }
-        ],
-    }
-    
-    # Send the request
-    response = requests.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
-    
-    if response.status_code != 200:
-        # If the request failed, log an error
-        print(f"Failed to send message to Line user ID {line_user_id}")
-        print(response.text)
-
 #อนุมัติการจองห้อง
 @login_required
 def approve_booking(req, id):
@@ -210,4 +167,65 @@ def disapproval_booking(req, id):
     messages.success(req, "ไม่อนุมัติการจองสำเร็จ")
     return redirect('/admin_dashboard')
 
+#ดูประวัติการจองทั้งหมด
+def admin_history_booking(req):
+    approved_bookings = Booking.objects.filter(status='อนุมัติ')
+    # Paginate objects
+    items_per_page = 100
+    paginator = Paginator(approved_bookings, items_per_page)
+    page_number = req.GET.get('page', 1)
+    page = paginator.get_page(page_number)
+    try:
+        page = paginator.page(page_number)
+    except:
+        page = paginator.page(1) 
+    context = {
+        "approved_bookings": approved_bookings,
+        "page" : page,
+    }
+    return render(req, 'pages/admin_history_booking.html', context)
+
+
+#LINE Notification booking_status_update
+def send_booking_status_update_message(booking):
+    # Get the user's Line user ID from the booking object
+    line_user_id = booking.line_user_id
+    
+    if not line_user_id:
+        # If the user's Line user ID is not set, do nothing
+        return
+    
+    # Set the message to be sent
+    formatted_date = booking.date.strftime('%d/%m/%y')
+    formatted_start_time = booking.start_time.strftime('%H:%M')
+    formatted_end_time = booking.end_time.strftime('%H:%M')
+    if booking.status == 'อนุมัติ':
+        message = f"การจองของ {booking.user.stdID} ห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} ได้รับการอนุมัติ"
+    else:
+        message = f"การจองของ {booking.user.stdID} ห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} ไม่ได้รับการอนุมัติ เนื่องจาก {booking.admin_reason}"
+    
+    # Set the request headers
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {settings.LINE_ACCESS_TOKEN}',
+    }
+    
+    # Set the request body
+    data = {
+        'to': line_user_id,
+        'messages': [
+            {
+                'type': 'text',
+                'text': message,
+            }
+        ],
+    }
+    
+    # Send the request
+    response = requests.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
+    
+    if response.status_code != 200:
+        # If the request failed, log an error
+        print(f"Failed to send message to Line user ID {line_user_id}")
+        print(response.text)
 
