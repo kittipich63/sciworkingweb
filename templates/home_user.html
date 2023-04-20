@@ -149,30 +149,9 @@
         {% endfor %}
     {% endif %}
 
-    <script>
-        // Example LIFF code to authenticate user and send user ID to Django app
-        liff.init({
-            liffId: '<your LIFF ID>'
-        }).then(() => {
-            if (!liff.isLoggedIn()) {
-                liff.login();
-            } else {
-                const userLineId = liff.getDecodedIDToken().sub; // get user ID
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value; // get CSRF token
-                fetch('/api/link-line-user/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                    },
-                    body: JSON.stringify({ line_user_id: userLineId }),
-                });
-            }
-        });
-    </script>
-
 <!-- LIFF SDK -->
-<script src="https://static.line-scdn.net/liff/edge/versions/2.13.0/sdk.js"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Your LIFF app's JavaScript -->
 <script src="{% static 'liff.js' %}"></script>
 

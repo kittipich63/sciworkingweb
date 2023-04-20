@@ -29,7 +29,7 @@ SECRET_KEY = "django-insecure-p9!d01j#=)blx*84t@%y-n-f_eq%h#wla-61y!l=#ux6npbv*r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '3a27-118-174-219-229.ap.ngrok.io']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '73e3-2403-6200-8822-f448-e5d8-f1fa-27d0-ac4c.ngrok-free.app']
 USE_X_FORWARDED_HOST = True
 
 # Application definition
@@ -184,11 +184,15 @@ LOGIN_REDIRECT_URL = "calendar"
 LOGOUT_REDIRECT_URL = "calendar"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 
 # LINE bot settings
 LINE_CHANNEL_SECRET = '19b6f53ad25ecbd161e8a8b48d65b73d'
 LINE_ACCESS_TOKEN = 'AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU='
 LIFF_URL = 'https://liff.line.me/1657441828-D9LqXa0V'
-
-# LINE LIFF settings
-LIFF_SUCCESS_URL = '<your_liff_success_url>'
+LINE_LIFF_ID = '1657441828-D9LqXa0V'

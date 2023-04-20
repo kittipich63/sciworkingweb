@@ -9,7 +9,6 @@ STATUS_CHOICES = (
     ("อนุมัติ", "อนุมัติ"),
 )
 
-
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     room = models.ForeignKey(MyRoom,related_name='name_room', on_delete=models.CASCADE,null=True)

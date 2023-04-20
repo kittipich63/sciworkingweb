@@ -8,9 +8,6 @@
         <div class="cardHeader">
             <h2>ตารางการจองห้อง</h2>
             <div>
-                <p id="userId"><b>userId:</b> </p>
-            </div>
-            <div>
                 {% for All_room in All_room %}
                 {% if All_room.room_name == '1' %}
                     <button class="btn btn-red float-right" data-bs-toggle="modal" data-bs-target="#room{{ All_room.id }}">ห้อง {{ All_room.room_name }}</button>

@@ -17,10 +17,15 @@ from django.utils import timezone
 from django.db.models import Q
 from django.conf import settings
 import requests
-from linebot.exceptions import LineBotApiError
+from django.http import HttpResponse ,HttpResponseBadRequest
+import json
+from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import csrf_exempt
 from linebot import LineBotApi, WebhookHandler ,WebhookParser
-from linebot.models import TextSendMessage ,MessageEvent, TextMessage
-
+from django.contrib.auth import login
+from django.urls import reverse
+from linebot.exceptions import LineBotApiError
+from linebot.models import TextSendMessage
 
 #ปฎิทิน
 def CalendarView(req):
@@ -77,7 +82,7 @@ def addbooking(req):
             formatted_date = booking.date.strftime('%d/%m/%y')
             formatted_start_time = booking.start_time.strftime('%H:%M')
             formatted_end_time = booking.end_time.strftime('%H:%M')
-            message = f"{booking.user.stdID} ได้ทำการจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} สำเร็จ"
+            message = f"{booking.user.stdID} ได้ทำการจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} เรียบร้อย"
             send_line_message(booking.line_user_id, message)
             messages.success(req, "ทำการจองสำเร็จ")
             return redirect('user_mybooking')   
@@ -198,60 +203,21 @@ def check_booking_status():
 line_bot_api = LineBotApi('AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('19b6f53ad25ecbd161e8a8b48d65b73d')
 
+@login_required
+def bind_line_user(req, user_id):
+    # Retrieve the User object associated with the current request
+    user = req.user
 
-def line_callback(request):
-    code = request.GET.get('code')
-    state = request.GET.get('state')
-
-    # Send a POST request to LINE's OAuth API to exchange the authorization code for an access token
-    url = 'https://api.line.me/oauth2/v2.1/token'
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    data = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': 'https://yourapp.com/line/callback',
-        'client_id': 'your_client_id',
-        'client_secret': 'your_client_secret'
-    }
-    response = requests.post(url, headers=headers, data=data)
-    access_token = response.json()['access_token']
-
-    # Send a GET request to LINE's Messaging API to get the user profile
-    url = 'https://api.line.me/v2/profile'
-    headers = {'Authorization': f'Bearer {access_token}'}
-    response = requests.get(url, headers=headers)
-    user_id = response.json()['userId']
-
-    # Save the user ID to the user's account in your Django app
-    user = request.user
+    # Update the User object with the Line user ID
     user.line_user_id = user_id
     user.save()
+    message = f"{booking.user.stdID} ได้ทำการจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} เรียบร้อย"
+    send_line_message(booking.line_user_id, message)
+    messages.success(req, 'ผูกบัญชี Line สำเร็จ')
 
+    # Redirect the user to a confirmation page
     return redirect('/')
 
-
-#ผูก Line เข้ากับบัญชี
-def bind_user_account(request):
-    user_id = None
-    try:
-        # Get the user ID from the LINE access token
-        access_token = request.GET.get('access_token')
-        user_profile = line_bot_api.get_profile(access_token)
-        user_id = user_profile.user_id
-    except LineBotApiError as e:
-        # Handle the LineBotApiError
-        print(e)
-
-    # Bind the user ID to the user account
-    if user_id:
-        user = request.user
-        user.line_user_id = user_id
-        user.save()
-        messages.success(request, "ลิงก์ LINE สำเร็จ")
-    else:
-        messages.error(request, "ไม่สามารถลิงก์ LINE ได้")
-    
-    return redirect('/')
-
-
-
+@login_required
+def line_user_bound(req):
+    return render(req, 'pages/line_user_bound.html')
