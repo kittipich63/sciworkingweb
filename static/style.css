@@ -32,7 +32,12 @@ body {
 .fc-time-grid-container td {
   background-color: transparent !important;
 }
-
+.fc-title {
+  max-width: 150px; /* set the maximum width of the event display area */
+  overflow: hidden;
+  text-overflow: ellipsis; /* add ellipsis to indicate truncated text */
+  white-space: nowrap; /* prevent text from wrapping */
+}
 
 /* ====================== Paginator========================== */
 .page-item.active .page-link {

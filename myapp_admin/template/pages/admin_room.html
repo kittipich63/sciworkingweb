@@ -1,10 +1,12 @@
-{% extends 'home_admin.html' %} {% block main %} {% load static %}
+{% extends 'home_admin.html' %} 
+{% block main %} 
+{% load static %}
 <!-- ================ Order Details List ================= -->
 <div class="details ">
     <div class="recentOrders">
         <div class="cardHeader">
             <h2>จัดการห้อง</h2>
-                <button class="btn" data-bs-toggle="modal" data-bs-target="#addroom">เพิ่มห้อง</button>
+                <a class="btn" href="{% url 'admin_addroom' %}">เพิ่มห้อง</a>
         </div>
 
         <table id="admin_room" class="" style="width:100%">

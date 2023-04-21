@@ -1,0 +1,45 @@
+{% extends 'home_admin.html' %}
+{% block main %}
+{% load static %}
+
+<!-- ================ Order Details List ================= -->
+<div class="details">
+    <div class="recentOrders">
+        <div class="cardHeader">
+            <h2>เพิ่มห้อง</h2>
+        </div>
+            <form class="form-horizontal" method="post" action="{% url 'admin_addroom' %}">
+                {% csrf_token %}
+                <div class="modal-body">    
+                    <div class="mb-3">
+                        <label>ชื่อห้อง</label>
+                        <div class="col" for="room_name">
+                            <input type="text" class="form-control "
+                                id="room_name" name="room_name">
+                        </div> 
+                    </div>
+                    <div class="mb-3">
+                        <label>สถานะห้อง</label>
+                            <div class="col" for="status">
+                                <select class="form-control" name="status" id="status">
+                                    <option value="เปิด">เปิด</option>
+                                    <option value="ปิด">ปิด</option>
+                                </select>
+                            </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>อุปกรณ์</label>
+                            <div class="col" for="description">
+                                <input type="text" class="form-control "
+                                    id="description" name="description"> 
+                            </div>
+                    </div>
+                </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success ">ยืนยัน</button>
+            </div>
+            </form>
+    </div>
+
+</div>
+{% endblock %}

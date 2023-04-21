@@ -89,19 +89,6 @@ def admin_delete_user(req, id):
 #จัดการห้อง
 @login_required
 def admin_room(req):
-    if req.user.status != "ผู้ดูแลระบบ" :
-        return redirect('/')
-    if req.method == "POST":
-        room_name = req.POST.get('room_name')
-        status = req.POST.get('status')
-        descriptions = req.POST.getlist('description')
-        for description in descriptions:
-            obj = MyRoom(room_name=room_name, status=status, description=description)
-            obj.save()
-            messages.success(req, "เพิ่มห้องสำเร็จ")
-        return redirect('/admin_room')   
-    else:
-        obj = MyRoom()   
     AllRoom = MyRoom.objects.all()
     # Paginate objects
     items_per_page = 100
@@ -118,6 +105,27 @@ def admin_room(req):
     }
     return render(req, 'pages/admin_room.html', context)
 
+#เพิ่มห้อง
+@login_required
+def admin_addroom(req):
+    if req.user.status != "ผู้ดูแลระบบ" :
+        return redirect('/')
+    if req.method == "POST":
+        room_name = req.POST.get('room_name')
+        status = req.POST.get('status')
+        descriptions = req.POST.getlist('description')
+        for description in descriptions:
+            obj = MyRoom(room_name=room_name, status=status, description=description)
+            obj.save()
+            messages.success(req, "เพิ่มห้องสำเร็จ")
+        return redirect('/admin_room')   
+    else:
+        obj = MyRoom()   
+    AllRoom = MyRoom.objects.all()      
+    context = {
+        "AllRoom": AllRoom,
+    }
+    return render(req, 'pages/admin_addroom.html', context)
 
 #แก้ไขห้อง
 @login_required

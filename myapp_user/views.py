@@ -12,20 +12,12 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils.translation import gettext as _
-from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db.models import Q
 from django.conf import settings
 import requests
-from django.http import HttpResponse ,HttpResponseBadRequest
-import json
-from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from linebot import LineBotApi, WebhookHandler ,WebhookParser
-from django.contrib.auth import login
-from django.urls import reverse
-from linebot.exceptions import LineBotApiError
-from linebot.models import TextSendMessage
 
 #ปฎิทิน
 def CalendarView(req):
@@ -146,7 +138,7 @@ def user_mybooking(req):
     }
     return render(req, 'pages/user_mybooking.html', context)
 
-# ========== LINE ============
+# ============================================== LINE ================================================ #
 # Function to send a Line message
 def send_line_message(user_id, message):
     url = 'https://api.line.me/v2/bot/message/push'
@@ -164,45 +156,34 @@ def send_line_message(user_id, message):
         ]
     }
     response = requests.post(url, headers=headers, json=data)
+    response.raise_for_status()
     
 #เตือนการจองเมื่อใกล้ถึงและสิ้นสุดการจอง
 #ยังไม่สำเร็จ
 
-def check_booking_status():
+def send_booking_notifications():
+    # Get current time
     now = timezone.now()
-    # Find all bookings that have been approved and are coming up within the next 10 minutes
-    upcoming_bookings = Booking.objects.filter(status="อนุมัติ", date__gte=now.date(), start_time__gte=now.time(), start_time__lte=(now + timedelta(minutes=2)).time())
-    for booking in upcoming_bookings:
-        # Send a notification message to the user when the reserved time is approaching
-        message = f"Reminder: Your booking for {booking.room.room_name} is starting in 10 minutes."
-        send_line_message(booking.line_user_id, message)
-
-    # Find all bookings that have been approved and are ending within the next 10 minutes
-    ending_bookings = Booking.objects.filter(status="อนุมัติ", date__gte=now.date(), end_time__gte=(now - timedelta(minutes=2)).time(), end_time__lte=now.time())
-    for booking in ending_bookings:
-        # Send a notification message to the user when the booking is about to end
-        message = f"Reminder: Your booking for {booking.room.room_name} is ending in 10 minutes."
-        send_line_message(booking.line_user_id, message)
-
-# Function to check if a booking is approaching its reserved time or its end time by 10 minutes
-'''def check_booking_time():
-    bookings = Booking.objects.filter(status="อนุมัติ")
+    # Get bookings with status 'อนุมัติ' and start time within the next 10 minutes
+    bookings = Booking.objects.filter(status='อนุมัติ', start_time__range=(now, now+timedelta(minutes=10)))
     for booking in bookings:
-        time_left = booking.start_time - datetime.datetime.now(datetime.timezone.utc)
-        time_left_min = int(time_left.total_seconds() / 60)
-        if time_left_min == 10:
-            message = f"คุณ {booking.user.stdID} มีการจองห้อง {booking.room.room_name} จะเริ่มในอีก 10 นาที"
+        # Calculate time remaining until start time
+        time_until_start = booking.start_time - now
+        minutes_until_start = time_until_start.seconds // 60
+        # Send notification if time remaining is 10 minutes or less
+        if minutes_until_start <= 10:
+            message = f"Your booking for {booking.room.room_name} will start in {minutes_until_start} minutes."
             send_line_message(booking.line_user_id, message)
-        elif time_left_min == 0:
-            message = f"คุณ {booking.user.stdID} มีการจองห้อง {booking.room.room_name} เริ่มในขณะนี้"
-            send_line_message(booking.line_user_id, message)'''
+        # Calculate time remaining until end time
+        time_until_end = booking.end_time - now
+        minutes_until_end = time_until_end.seconds // 60
+        # Send notification if time remaining is 10 minutes or less
+        if minutes_until_end <= 10:
+            message = f"Your booking for {booking.room.room_name} will end in {minutes_until_end} minutes."
+            send_line_message(booking.line_user_id, message)
 
 
 # ---------------------------- Line ------------------------------------#
-#line liff - get userid to save bind account
-line_bot_api = LineBotApi('AzpZXSQ6zKvBC5hXYxtl79AkvRhtpA8Vhn9VD3bFbQD83UagJiwY33YLatoDnfn4ZuhUHWoQVJOYtHfPp7225a+hbIr2KkuG57q+UkMN7oFGggGNqnSVaeQldUd3fK3hKHP+zcKLrLNr4ntQXliMXQdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('19b6f53ad25ecbd161e8a8b48d65b73d')
-
 @login_required
 def bind_line_user(req, user_id):
     # Retrieve the User object associated with the current request
@@ -211,12 +192,12 @@ def bind_line_user(req, user_id):
     # Update the User object with the Line user ID
     user.line_user_id = user_id
     user.save()
-    message = f"{booking.user.stdID} ได้ทำการจองห้อง {booking.room.room_name} วันที่ {formatted_date} เวลา {formatted_start_time} - {formatted_end_time} เรียบร้อย"
-    send_line_message(booking.line_user_id, message)
+    message = f"ผูก Line สำเร็จ"
+    send_line_message(user.line_user_id, message)
     messages.success(req, 'ผูกบัญชี Line สำเร็จ')
 
     # Redirect the user to a confirmation page
-    return redirect('/')
+    return redirect('/user_profile')
 
 @login_required
 def line_user_bound(req):

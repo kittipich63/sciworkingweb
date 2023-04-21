@@ -7,7 +7,17 @@
                 <div class="recentOrders">
                     <div class="cardHeader">
                         <h2>ข้อมูลส่วนตัว</h2> <br>
-                        <a href="{% url 'line_user_bound' %}"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/th.png" alt="bind Line" height="36" border="0"></a>
+                        {% if user.line_user_id is None %}  
+                        <div>
+                            <a href="{% url 'line_user_bound' %}" alt="connect Line" height="36" border="0">เชื่อมต่อไลน์</a>
+                            <!-- <button href="{% url 'line_user_bound' %}"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/th.png" alt="bind Line" height="36" border="0"></button> -->
+                        </div>
+                        {% endif  %}
+                        {% if user.line_user_id is not None %}
+                        <div>
+                            <a href="line://app/1657441828-D9LqXa0V" alt="open line liff" height="36" border="0">เปิด Line Liff</a>
+                        </div>
+                        {% endif %}
                     </div>
                     <img class="rounded-pill mx-auto" width="100" src="{{ user.socialaccount_set.all.0.get_avatar_url }}">
                     <h5></h5>

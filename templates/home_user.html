@@ -79,7 +79,7 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 editable: true,
                 businessHours: true,
-                dayMaxEvents: true,
+                dayMaxEventRows: 4,
                 timeZone: 'local',
                 initialView: 'dayGridMonth',
                 height: 'auto',
@@ -99,7 +99,6 @@
                     meridiem: false,
                     hour12: false
                 },
-                
                 eventContent: function(info) {
                     var color;
                     if (info.event.extendedProps.room == "1") {
@@ -110,7 +109,7 @@
                     color = 'blue';
                     }
                     return {
-                    html: '<div class="fc-content" style="background-color: ' + color + '">' +
+                    html: '<div class="fc-content desktop" style="background-color: ' + color + '">' +
                         '<span class="fc-time">' + info.event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' - ' +
                             info.event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</span>' +
                             '<span class="fc-title">' + info.event.title + '</span>' +
@@ -149,7 +148,7 @@
         {% endfor %}
     {% endif %}
 
-<!-- LIFF SDK -->
+    <!-- ====== LIFF SDK ======= -->
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Your LIFF app's JavaScript -->

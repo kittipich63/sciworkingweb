@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin_profile/', views.admin_profile, name='admin_profile'),
 
     path('admin_room', views.admin_room, name='admin_room'), 
+    path('admin_addroom', views.admin_addroom, name='admin_addroom'), 
     path('delete_room/<int:id>',views.delete_room, name="delete_room"),
     path('edit_room/<int:id>',views.edit_room, name="edit_room"),    
 
