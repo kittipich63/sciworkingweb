@@ -156,7 +156,7 @@ def send_line_message(user_id, message):
         ]
     }
     response = requests.post(url, headers=headers, json=data)
-    response.raise_for_status()
+    #response.raise_for_status() #ต้องเชื่อมต่อไลน์ก่อน
     
 #เตือนการจองเมื่อใกล้ถึงและสิ้นสุดการจอง
 #ยังไม่สำเร็จ
@@ -193,12 +193,11 @@ def bind_line_user(req, user_id):
     user.line_user_id = user_id
     user.save()
     message = f"ผูก Line สำเร็จ"
+    # Send Line message to the newly connected user using the user ID
     send_line_message(user.line_user_id, message)
     messages.success(req, 'ผูกบัญชี Line สำเร็จ')
 
     # Redirect the user to a confirmation page
     return redirect('/user_profile')
 
-@login_required
-def line_user_bound(req):
-    return render(req, 'pages/line_user_bound.html')
+

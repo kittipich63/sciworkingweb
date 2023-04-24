@@ -9,13 +9,12 @@
                         <h2>ข้อมูลส่วนตัว</h2> <br>
                         {% if user.line_user_id is None %}  
                         <div>
-                            <a href="{% url 'line_user_bound' %}" alt="connect Line" height="36" border="0">เชื่อมต่อไลน์</a>
-                            <!-- <button href="{% url 'line_user_bound' %}"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/th.png" alt="bind Line" height="36" border="0"></button> -->
+                            <a id="connectLineButton"><img src="{% static 'connect_line.png' %}" alt="connect Line" height="36" border="0"></a>
                         </div>
                         {% endif  %}
                         {% if user.line_user_id is not None %}
                         <div>
-                            <a href="line://app/1657441828-D9LqXa0V" alt="open line liff" height="36" border="0">เปิด Line Liff</a>
+                            <a href="line://app/1657441828-D9LqXa0V"><img src="{% static 'open_liff.png' %}" alt="open line liff" height="36" border="0"></a>
                         </div>
                         {% endif %}
                     </div>

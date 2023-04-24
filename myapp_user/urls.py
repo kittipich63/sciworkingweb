@@ -8,7 +8,6 @@ urlpatterns = [
     path('events', views.get_events, name='events'),
 
     path('bind-line-user/<str:user_id>/', views.bind_line_user, name='bind_line_user'),
-    path('line_user_bound', views.line_user_bound, name='line_user_bound'),
     
     path('user_profile', views.user_profile, name='user_profile'),
     path('user_std/<int:id>', views.user_std, name='user_std'),
