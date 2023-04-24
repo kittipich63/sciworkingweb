@@ -16,17 +16,17 @@ from django.utils import timezone
 from django.db.models import Q
 from django.conf import settings
 import requests
+import datetime
 from django.views.decorators.csrf import csrf_exempt
 from linebot import LineBotApi, WebhookHandler ,WebhookParser
 
 #ปฎิทิน
 def CalendarView(req):
-    template_name = 'pages/calendar.html'
     All_room = MyRoom.objects.filter(status="เปิด")
     context = {
         "All_room" : All_room,
     }
-    return render(req, template_name, context)
+    return render(req, 'pages/calendar.html' ,context)
 
 #ดึงการจองมาแสดง
 def get_events(req):
@@ -47,6 +47,7 @@ def get_events(req):
 def user_profile(req):
     return render(req, 'pages/user_profile.html') 
 
+#เพิ่มรหัสนักศึกษา
 @login_required
 def user_std(req,id):
     obj = User.objects.get(id=id)
@@ -59,10 +60,18 @@ def user_std(req,id):
 @login_required
 def addbooking(req):
     # Check if user is allowed to make a booking
-    if req.user.status == "ไม่อนุญาต" or req.user.stdID is None or req.user.right == "ไม่อนุญาต":
+    if req.user.right == "ไม่อนุญาต":
         return redirect('/')
     
-    
+    # Check if user has exceeded maximum number of bookings per week
+    bookings_this_week = Booking.objects.filter(
+        status="อนุมัติ",
+        user=req.user,
+        date__gte=timezone.localdate() - datetime.timedelta(days=7)
+    )
+    if bookings_this_week.count() >= 3:
+        messages.warning(req, "คุณจองห้องมากเกินไป ในสัปดาห์นี้คุณได้ทำการจองไปแล้ว 3 ครั้ง")
+        return redirect('/')
     
     if req.method == 'POST':
         bookingform = BookingModelForm(req.POST, initial={'user': req.user})
@@ -88,7 +97,7 @@ def addbooking(req):
 #แก้ไขการจอง
 @login_required
 def user_mybooking_edit(req, id):
-    if req.user.status == "ไม่อนุญาต" or req.user.stdID is None or req.user.right == "ไม่อนุญาต":
+    if req.user.right == "ไม่อนุญาต":
         return redirect('/')
     booking = Booking.objects.get(id=id)
     form = BookingModelForm(instance=booking) 
@@ -108,7 +117,7 @@ def user_mybooking_edit(req, id):
 #ลบการจอง
 @login_required
 def user_mybooking_delete(req, id):
-    if req.user.status == "ไม่อนุญาต" or req.user.stdID is None or req.user.right == "ไม่อนุญาต":
+    if req.user.right == "ไม่อนุญาต":
         return redirect('/')
     obj = Booking.objects.get(id=id)
     obj.delete()
@@ -118,7 +127,7 @@ def user_mybooking_delete(req, id):
 #การจองของฉัน
 @login_required
 def user_mybooking(req):
-    if req.user.status == "ไม่อนุญาต" or req.user.stdID is None :
+    if req.user.right == "ไม่อนุญาต" or req.user.stdID is None :
         return redirect('/')
     Bookings = Booking.objects.all()
     bookings = Booking.objects.filter(user=req.user).order_by('status')
@@ -157,10 +166,27 @@ def send_line_message(user_id, message):
     }
     response = requests.post(url, headers=headers, json=data)
     #response.raise_for_status() #ต้องเชื่อมต่อไลน์ก่อน
-    
+
+#ผูกบัญชี line
+@login_required
+def bind_line_user(req, user_id):
+    # Retrieve the User object associated with the current request
+    user = req.user
+
+    # Update the User object with the Line user ID
+    user.line_user_id = user_id
+    user.save()
+    message = f"ผูก Line สำเร็จ"
+    # Send Line message to the newly connected user using the user ID
+    send_line_message(user.line_user_id, message)
+    messages.success(req, 'ผูกบัญชี Line สำเร็จ')
+
+    # Redirect the user to a confirmation page
+    return redirect('/user_profile')
+
+
 #เตือนการจองเมื่อใกล้ถึงและสิ้นสุดการจอง
 #ยังไม่สำเร็จ
-
 def send_booking_notifications():
     # Get current time
     now = timezone.now()
@@ -183,21 +209,5 @@ def send_booking_notifications():
             send_line_message(booking.line_user_id, message)
 
 
-# ---------------------------- Line ------------------------------------#
-@login_required
-def bind_line_user(req, user_id):
-    # Retrieve the User object associated with the current request
-    user = req.user
-
-    # Update the User object with the Line user ID
-    user.line_user_id = user_id
-    user.save()
-    message = f"ผูก Line สำเร็จ"
-    # Send Line message to the newly connected user using the user ID
-    send_line_message(user.line_user_id, message)
-    messages.success(req, 'ผูกบัญชี Line สำเร็จ')
-
-    # Redirect the user to a confirmation page
-    return redirect('/user_profile')
 
 

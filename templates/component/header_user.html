@@ -41,34 +41,3 @@
             toggleMenu.classList.toggle('active')
         }
     </script> 
-
-
-
-        <!-- profile -->
-            <div class="modal fade" id="profile" tabindex="-1" aria-labelledby="inputnameModal"
-            aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-fullscreen-lg-down">
-                <div class="modal-content">
-                <form action="" >
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteuserModal">โปรไฟล์</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <div class="col" for="email_user">
-                            <input type="email" class="form-control text-muted " id="email_admin" name="email_admin" value="{{user.email}}">
-                        </div> <br>
-                        <div class="col" for="id_name">
-                            <input type="text" class="form-control " id="id_name" name="id_name" placeholder="รหัสนักศึกษา">
-                        </div> <br>
-                        <div class="col" for="name">
-                            <input type="text" class="form-control  text-muted" id="name" name="name" value="{{user.first_name}}&nbsp{{user.last_name}}">
-                        </div>
-                    </div>
-                </div>
-                </form>
-                </div>
-            </div>
-            </div>

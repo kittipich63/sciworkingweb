@@ -11,12 +11,14 @@ import requests
 from django.conf import settings
 
 #ข้อมูลส่วนตัว admin
+@login_required
 def admin_profile(req):
     if req.user.status != "ผู้ดูแลระบบ" :
         return redirect('/')
     return render(req, 'pages/admin_profile.html')    
 
 #หน้าแรก admin
+@login_required
 def admin_dashboard(req):
     if req.user.status != "ผู้ดูแลระบบ" :
         return redirect('/')
