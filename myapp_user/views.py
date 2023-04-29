@@ -176,10 +176,10 @@ def bind_line_user(req, user_id):
     # Update the User object with the Line user ID
     user.line_user_id = user_id
     user.save()
-    message = f"ผูก Line สำเร็จ"
     # Send Line message to the newly connected user using the user ID
+    message = f"ผูกบัญชีกับ Line สำเร็จ"
     send_line_message(user.line_user_id, message)
-    messages.success(req, 'ผูกบัญชี Line สำเร็จ')
+    messages.success(req, 'ผูกบัญชีกับ Line สำเร็จ')
 
     # Redirect the user to a confirmation page
     return redirect('/user_profile')

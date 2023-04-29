@@ -91,6 +91,8 @@ def admin_delete_user(req, id):
 #จัดการห้อง
 @login_required
 def admin_room(req):
+    if req.user.status != "ผู้ดูแลระบบ" :
+        return redirect('/')
     AllRoom = MyRoom.objects.all()
     # Paginate objects
     items_per_page = 100
@@ -160,7 +162,7 @@ def approve_booking(req, id):
     booking = Booking.objects.get(id=id)
     booking.status = 'อนุมัติ'
     booking.save()
-    send_booking_status_update_message(booking)  # Call the send_booking_status_update_message function
+    send_booking_status_update_message(booking)
     messages.success(req, "อนุมัติการจองสำเร็จ")
     return redirect('/admin_dashboard')
 
@@ -177,8 +179,10 @@ def disapproval_booking(req, id):
     messages.success(req, "ไม่อนุมัติการจองสำเร็จ")
     return redirect('/admin_dashboard')
 
-#ดูประวัติการจองทั้งหมด
+#ดูประวัติการจองย้อนหลังทั้งหมด
 def admin_history_booking(req):
+    if req.user.status != "ผู้ดูแลระบบ" :
+        return redirect('/')
     approved_bookings = Booking.objects.filter(status='อนุมัติ')
     # Paginate objects
     items_per_page = 100

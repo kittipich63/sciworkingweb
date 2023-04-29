@@ -13,6 +13,9 @@ class BookingModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['room'].queryset = MyRoom.objects.filter(status='เปิด')
+        if self.instance:
+            self.initial['start_time'] = self.instance.start_time.strftime('%H:%M')
+            self.initial['end_time'] = self.instance.end_time.strftime('%H:%M')
 
     class Meta:
         model = Booking

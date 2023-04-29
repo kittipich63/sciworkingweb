@@ -9,7 +9,7 @@
         <div class="cardHeader">
             <h2>แก้ไขจองห้อง</h2>
         </div>
-        <form method="POST" action="{% url 'user_mybooking_edit' booking.pk %}">
+        <form method="POST" action="{% url 'user_mybooking_edit' booking.id %}">
             {% csrf_token %}
             {{ form }} <br>
             <div class="modal-footer">

@@ -103,8 +103,8 @@
                                 <label>สถานะห้อง</label>
                                 <div class="col" for="status">
                                     <select class="form-control" name="status" id="status">
-                                        <option value="OPEN">เปิด</option>
-                                        <option value="NOTOPEN">ปิด</option>
+                                        <option value="เปิด" {% if All_room.status == "เปิด" %}selected{% endif %}>เปิด</option>
+                                        <option value="ปิด" {% if All_room.status == "ปิด" %}selected{% endif %}>ปิด</option>
                                     </select>
                                 </div>
                             </div>

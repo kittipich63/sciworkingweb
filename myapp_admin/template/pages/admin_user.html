@@ -77,8 +77,8 @@
                                         <label>สิทธิ์การจอง</label>
                                         <div class="col" for="right">
                                             <select class="form-control" name="right" id="right">
-                                                <option value="อนุญาต">อนุญาต</option>
-                                                <option value="ไม่อนุญาต">ไม่อนุญาต</option>
+                                                <option value="อนุญาต" {% if AllUser.right == "อนุญาต" %}selected{% endif %}>อนุญาต</option>
+                                                <option value="ไม่อนุญาต" {% if AllUser.right == "ไม่อนุญาต" %}selected{% endif %}>ไม่อนุญาต</option>
                                             </select>
                                         </div>
                                     </div>
@@ -86,8 +86,8 @@
                                         <label>สถานะ</label>
                                         <div class="col" for="status">
                                             <select class="form-control" name="status" id="status">
-                                                <option value="นักศึกษา">นักศึกษา</option>
-                                                <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ</option>
+                                                <option value="นักศึกษา" {% if AllUser.status == "นักศึกษา" %}selected{% endif %}>นักศึกษา</option>
+                                                <option value="ผู้ดูแลระบบ" {% if AllUser.status == "ผู้ดูแลระบบ" %}selected{% endif %}>ผู้ดูแลระบบ</option>
                                             </select>
                                         </div>
                                     </div>
