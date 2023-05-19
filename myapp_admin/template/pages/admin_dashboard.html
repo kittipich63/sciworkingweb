@@ -74,7 +74,7 @@
                                                 <form method="post" action="disapproval_booking/{{ booking.id }}" enctype="multipart/form-data">
                                                 {% csrf_token %}
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="disapprovalModal">ยืนยันการไม่อนุมัติการจองของ {{ booking.studentid }} </h5>
+                                                    <h5 class="modal-title" id="disapprovalModal">ยืนยันการไม่อนุมัติการจองของ {{ booking.user.stdID}} </h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                         aria-label="Close"></button>
                                                 </div>
@@ -101,14 +101,42 @@
                                         <form action="approve_booking/{{ booking.id }}" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="approveModal">ยืนยันการอนุมัติ {{ booking.studentid }}</h5>
+                                                <h5 class="modal-title" id="approveModal">ยืนยันการอนุมัติการจองของ {{ booking.user.stdID }}</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                     aria-label="Close"></button>
                                             </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
-                                            <button type="submit" class="btn btn-success ">ยืนยัน</button>
-                                        </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <div class="col" for="stdID">
+                                                        <label>รหัสนักศึกษา</label>
+                                                        <input type="text" class="form-control" value="{{ booking.user.stdID }}" disabled >
+                                                    </div> <br>
+                                                    <div class="col" for="id_room">
+                                                        <label>ชื่อห้อง</label>
+                                                        <input type="text" class="form-control" value="{{ booking.room.room_name }}" disabled >
+                                                    </div> <br>
+                                                    <div class="col" for="date">
+                                                        <label>วันที่จอง</label>
+                                                        <input type="text" class="form-control" value="{{ booking.date }}" disabled >
+                                                    </div> <br>
+                                                    <div class="col" for="start_time">
+                                                        <label>เวลาเริ่มต้น</label>
+                                                        <input type="text" class="form-control" value="{{ booking.start_time }}" disabled >
+                                                    </div> <br>
+                                                    <div class="col" for="end_time">
+                                                        <label>เวลาสิ้นสุด</label>
+                                                        <input type="text" class="form-control" value="{{ booking.end_time }}" disabled >
+                                                    </div> <br>
+                                                    <div class="col" for="reason">
+                                                        <label>เหตุผลการจอง</label>
+                                                        <input type="text" class="form-control" value="{{ booking.reason }}" disabled >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger " data-bs-dismiss="modal">ยกเลิก</button>
+                                                <button type="submit" class="btn btn-success ">ยืนยัน</button>
+                                            </div>
                                         </form>
                                         </div>
                                     </div>

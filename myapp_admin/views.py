@@ -85,6 +85,7 @@ def admin_delete_user(req, id):
         return redirect('/')
     obj = User.objects.get(id=id)
     obj.delete()
+    messages.success(req, "ลบผู้ใช้สำเร็จ")
     return redirect('/admin_user')    
 
 
@@ -150,7 +151,8 @@ def edit_room(req,id):
 def delete_room(req, id):
     if req.user.status != "ผู้ดูแลระบบ" :
         return redirect('/')
-    MyRoom.objects.get(id=id).delete()
+    obj = MyRoom.objects.get(id=id)
+    obj.delete()
     messages.success(req, "ลบห้องสำเร็จ")
     return redirect('/admin_room')
 

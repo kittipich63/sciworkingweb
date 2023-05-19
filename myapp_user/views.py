@@ -94,6 +94,29 @@ def addbooking(req):
     }            
     return render(req, 'pages/addbooking.html', context)
 
+#การจองของฉัน
+@login_required
+def user_mybooking(req):
+    if req.user.right == "ไม่อนุญาต" or req.user.stdID is None :
+        return redirect('/')
+    Bookings = Booking.objects.all()
+    bookings = Booking.objects.filter(user=req.user).order_by('status')
+    # Paginate objects
+    items_per_page = 100
+    paginator = Paginator(bookings, items_per_page)
+    page_number = req.GET.get('page', 1)
+    page = paginator.get_page(page_number)
+    try:
+        page = paginator.page(page_number)
+    except:
+        page = paginator.page(1) 
+    # Pass data to the template
+    context = {
+        'page' :page,
+        'Bookings': Bookings,
+    }
+    return render(req, 'pages/user_mybooking.html', context)
+
 #แก้ไขการจอง
 @login_required
 def user_mybooking_edit(req, id):
@@ -124,28 +147,7 @@ def user_mybooking_delete(req, id):
     messages.success(req, "ลบการจองสำเร็จ")
     return redirect('/user_mybooking')
 
-#การจองของฉัน
-@login_required
-def user_mybooking(req):
-    if req.user.right == "ไม่อนุญาต" or req.user.stdID is None :
-        return redirect('/')
-    Bookings = Booking.objects.all()
-    bookings = Booking.objects.filter(user=req.user).order_by('status')
-    # Paginate objects
-    items_per_page = 100
-    paginator = Paginator(bookings, items_per_page)
-    page_number = req.GET.get('page', 1)
-    page = paginator.get_page(page_number)
-    try:
-        page = paginator.page(page_number)
-    except:
-        page = paginator.page(1) 
-    # Pass data to the template
-    context = {
-        'page' :page,
-        'Bookings': Bookings,
-    }
-    return render(req, 'pages/user_mybooking.html', context)
+
 
 # ============================================== LINE ================================================ #
 # Function to send a Line message
@@ -183,30 +185,6 @@ def bind_line_user(req, user_id):
 
     # Redirect the user to a confirmation page
     return redirect('/user_profile')
-
-
-#เตือนการจองเมื่อใกล้ถึงและสิ้นสุดการจอง
-#ยังไม่สำเร็จ
-def send_booking_notifications():
-    # Get current time
-    now = timezone.now()
-    # Get bookings with status 'อนุมัติ' and start time within the next 10 minutes
-    bookings = Booking.objects.filter(status='อนุมัติ', start_time__range=(now, now+timedelta(minutes=10)))
-    for booking in bookings:
-        # Calculate time remaining until start time
-        time_until_start = booking.start_time - now
-        minutes_until_start = time_until_start.seconds // 60
-        # Send notification if time remaining is 10 minutes or less
-        if minutes_until_start <= 10:
-            message = f"Your booking for {booking.room.room_name} will start in {minutes_until_start} minutes."
-            send_line_message(booking.line_user_id, message)
-        # Calculate time remaining until end time
-        time_until_end = booking.end_time - now
-        minutes_until_end = time_until_end.seconds // 60
-        # Send notification if time remaining is 10 minutes or less
-        if minutes_until_end <= 10:
-            message = f"Your booking for {booking.room.room_name} will end in {minutes_until_end} minutes."
-            send_line_message(booking.line_user_id, message)
 
 
 

@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from django.forms.widgets import TextInput, Select
 from datetime import datetime, timedelta, time
 from django.utils.timezone import make_aware
-from django.db.models import Q
 
 class BookingModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
