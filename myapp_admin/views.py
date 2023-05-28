@@ -126,11 +126,7 @@ def admin_addroom(req):
         return redirect('/admin_room')   
     else:
         obj = MyRoom()   
-    AllRoom = MyRoom.objects.all()      
-    context = {
-        "AllRoom": AllRoom,
-    }
-    return render(req, 'pages/admin_addroom.html', context)
+    return render(req, 'pages/admin_addroom.html')
 
 #แก้ไขห้อง
 @login_required
