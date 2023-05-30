@@ -61,6 +61,7 @@ def user_std(req,id):
 def addbooking(req):
     # Check if user is allowed to make a booking
     if req.user.right == "ไม่อนุญาต":
+        messages.warning(req, "ไม่สามารถเพิ่มการจองได้ เนื่องจากถูกระงับการจอง")
         return redirect('/')
     
     # Check if user has exceeded maximum number of bookings per week
